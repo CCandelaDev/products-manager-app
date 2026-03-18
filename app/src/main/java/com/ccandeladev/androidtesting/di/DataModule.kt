@@ -13,6 +13,8 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DataModule {
+
+    //To provide dispatchers
     @Provides
     @Singleton
     fun provideDispatchersProvider(defaultDispatchersProvider: DefaultDispatchersProvider): DispatchersProvider {
@@ -24,4 +26,6 @@ object DataModule {
     fun provideProductRepository(productRepositoryImpl: ProductRepositoryImpl): ProductRepository {
         return productRepositoryImpl
     }
+
+
 }

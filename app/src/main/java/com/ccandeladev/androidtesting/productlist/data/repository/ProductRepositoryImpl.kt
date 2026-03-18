@@ -1,6 +1,7 @@
 package com.ccandeladev.androidtesting.productlist.data.repository
 
 import com.ccandeladev.androidtesting.core.domain.coroutines.DispatchersProvider
+import com.ccandeladev.androidtesting.productlist.data.local.LocalDataSource
 import com.ccandeladev.androidtesting.productlist.data.remote.RemoteDataSource
 import com.ccandeladev.androidtesting.productlist.domain.model.Product
 import com.ccandeladev.androidtesting.productlist.domain.repository.ProductRepository
@@ -10,8 +11,9 @@ import javax.inject.Inject
 
 // Product Repository Implementation
 class ProductRepositoryImpl @Inject constructor(
-    val remoteDataSource: RemoteDataSource,
-    val dispatchers: DispatchersProvider
+    private val remoteDataSource: RemoteDataSource,
+    private val localDataSource: LocalDataSource,
+    private val dispatchers: DispatchersProvider
 ) :
     ProductRepository {
 
