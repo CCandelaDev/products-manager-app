@@ -1,6 +1,6 @@
 package com.ccandeladev.androidtesting.productlist.data.remote
 
-import com.ccandeladev.androidtesting.core.core.AppError
+import com.ccandeladev.androidtesting.core.domain.model.AppError
 import com.ccandeladev.androidtesting.productlist.data.remote.response.OfferResponse
 import com.ccandeladev.androidtesting.productlist.data.remote.response.ProductResponse
 import retrofit2.HttpException

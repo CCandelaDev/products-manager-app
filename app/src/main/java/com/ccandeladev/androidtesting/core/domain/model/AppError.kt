@@ -1,4 +1,4 @@
-package com.ccandeladev.androidtesting.core.core
+package com.ccandeladev.androidtesting.core.domain.model
 
 // To errors control
 sealed class AppError: Exception() {
