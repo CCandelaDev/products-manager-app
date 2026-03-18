@@ -6,11 +6,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class OffersResponse(
     @SerialName("offers")
-    val offers: List<OffersResponse>
+    val offers: List<OfferResponse>
 )
 
 @Serializable
-data class offerResponse(
+data class OfferResponse(
     @SerialName("id")
     val id: String,
     @SerialName("productId")
