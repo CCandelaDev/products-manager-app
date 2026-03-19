@@ -1,12 +1,18 @@
 package com.ccandeladev.androidtesting.di
 
+import android.content.Context
+import androidx.room.Room
 import com.ccandeladev.androidtesting.core.data.coroutines.DefaultDispatchersProvider
 import com.ccandeladev.androidtesting.core.domain.coroutines.DispatchersProvider
+import com.ccandeladev.androidtesting.productlist.data.local.database.ProductManagerDatabase
+import com.ccandeladev.androidtesting.productlist.data.local.database.dao.OfferDao
+import com.ccandeladev.androidtesting.productlist.data.local.database.dao.ProductDao
 import com.ccandeladev.androidtesting.productlist.data.repository.ProductRepositoryImpl
 import com.ccandeladev.androidtesting.productlist.domain.repository.ProductRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -27,5 +33,25 @@ object DataModule {
         return productRepositoryImpl
     }
 
+    //use Room.databaseBuilder to create the instance of ProductManagerDatabase.
+    @Provides
+    @Singleton
+    fun provideDataBase(@ApplicationContext context: Context): ProductManagerDatabase {
+        return Room.databaseBuilder(
+            context = context,
+            ProductManagerDatabase::class.java,
+            "product_manager_db"
+        ).build()
+    }
 
+    //function that que receive the DB and return db.productDao().
+    @Provides
+    fun provideProductDao(productManagerDatabase: ProductManagerDatabase): ProductDao {
+        return productManagerDatabase.productDao()
+    }
+    //function that que receive the DB and return db.offerDao().
+    @Provides
+    fun provideOfferDao(productManagerDatabase: ProductManagerDatabase): OfferDao{
+        return productManagerDatabase.offerDao()
+    }
 }

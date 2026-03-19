@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class InventoryResponse (
-    @SerialName (value = "Inventory")
+    @SerialName (value = "inventory")
     val inventory: List<ProductResponse>
 )
 

@@ -19,7 +19,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-// Product Repository Implementation
+// Product Repository Implementation Single source of truth
 class ProductRepositoryImpl @Inject constructor(
     private val remoteDataSource: RemoteDataSource,
     private val localDataSource: LocalDataSource,
@@ -28,7 +28,10 @@ class ProductRepositoryImpl @Inject constructor(
     ProductRepository {
 
     private val refreshScope = CoroutineScope(context = SupervisorJob() + dispatchers.io)
+    //If the user enters and exits the screen multiple times,
+    // Mutex ensures only one API request at a time.
     private val refreshMutex = Mutex()
+
 
 
     override fun getInventory(): Flow<List<Product>> {

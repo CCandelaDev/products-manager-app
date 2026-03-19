@@ -24,7 +24,7 @@ object NetworkModule {
     @Singleton
     @Named("baseUrl") // To provide baseUrl (necessary for testing)
     fun provideBaseUrl(): String {
-        return ""
+        return "https://raw.githubusercontent.com/CCandelaDev/productmanager-api/main/"
     }
 
     @Provides

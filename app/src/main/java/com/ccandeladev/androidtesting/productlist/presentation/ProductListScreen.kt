@@ -1,9 +1,14 @@
 package com.ccandeladev.androidtesting.productlist.presentation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -16,9 +21,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ccandeladev.androidtesting.productlist.domain.model.Product
 
 @Composable
 fun ProductListScreen(productListViewModel: ProductListViewModel = hiltViewModel()) {
@@ -41,7 +48,7 @@ fun ProductListScreen(productListViewModel: ProductListViewModel = hiltViewModel
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) }
     ) { paddingValues ->
-        when (val uiState = uiState) {
+        when (val state = uiState) {
             is ProductListUiState.Loading -> {
                 Box(
                     Modifier
@@ -65,12 +72,26 @@ fun ProductListScreen(productListViewModel: ProductListViewModel = hiltViewModel
             }
 
             is ProductListUiState.Success -> {
-                Column (
+                Column(
                     Modifier
                         .fillMaxSize()
                         .padding(paddingValues = paddingValues)
-                ){
-                    Text("Show Products")
+                ) {
+                    Text("He llegado al exito")
+                    LazyColumn() {
+                        items(state.inventory) { product: Product ->
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(50.dp)
+                                    .background(Color.Red),
+                                contentAlignment = Alignment.Center
+                            ){
+                                Text(product.name)
+                            }
+
+                        }
+                    }
                 }
             }
         }

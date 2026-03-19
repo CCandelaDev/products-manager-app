@@ -1,5 +1,6 @@
 package com.ccandeladev.androidtesting.productlist.data.local
 
+import android.util.Log
 import com.ccandeladev.androidtesting.productlist.data.local.database.dao.OfferDao
 import com.ccandeladev.androidtesting.productlist.data.local.database.dao.ProductDao
 import com.ccandeladev.androidtesting.productlist.data.local.database.entity.ProductEntity
@@ -15,6 +16,7 @@ class LocalDataSource @Inject constructor(
     fun getAllInventory(): Flow<List<ProductEntity>> = productDao.getAllInventory()
 
     suspend fun saveInventory(inventory: List<ProductEntity>){
+        Log.e("DATABASE", "Insert data...")
         productDao.replaceAll(inventory = inventory)
     }
 
