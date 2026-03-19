@@ -18,7 +18,7 @@ data class ProductResponse(
     @SerialName("description")
     val description: String? = null,
     @SerialName("priceCents")
-    val priceCents: Int? = null,
+    val priceCents: Double? = null,
     @SerialName("category")
     val category: String? = null,
     @SerialName("stock")

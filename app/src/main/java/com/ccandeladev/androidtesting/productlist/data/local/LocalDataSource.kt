@@ -14,4 +14,8 @@ class LocalDataSource @Inject constructor(
 
     fun getAllInventory(): Flow<List<ProductEntity>> = productDao.getAllInventory()
 
+    suspend fun saveInventory(inventory: List<ProductEntity>){
+        productDao.replaceAll(inventory = inventory)
+    }
+
 }
