@@ -7,10 +7,10 @@ sealed class ProductListUiState {
     data object Loading : ProductListUiState()
     data class Error(val message: String) : ProductListUiState()
     data class Success(
-        val inventory: List<Product>
+        val inventory: List<Product>,
+        val categories: List<String>,
 //      productList: List<>,
-//      categories: List<>,
-    //     val selectedCategory: String,
+        val selectedCategory: String?,
 //      sortOption
     ) : ProductListUiState()
 }

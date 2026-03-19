@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,11 +37,25 @@ class ProductListViewModel @Inject constructor(private val getInventoryUseCase: 
         _uiState.value = ProductListUiState.Loading
         getInventoryUseCase()
             .onEach { inventory: List<Product> ->
-                _uiState.value = ProductListUiState.Success(inventory = inventory)
+                val categories = inventory.map { it.category }.distinct().sorted()
+                _uiState.value =
+                    ProductListUiState.Success(
+                        inventory = inventory,
+                        categories = categories,
+                        selectedCategory = null // Waiting to complete
+                    )
             }
             .catch { e: Throwable ->
                 _uiState.value = ProductListUiState.Error(e.message.orEmpty())
             }
             .launchIn(viewModelScope)
     }
+
+    fun setCategory(category: String?) {
+        viewModelScope.launch {
+            //Llamar settingRepository
+        }
+    }
+
+
 }

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ccandeladev.androidtesting.productlist.domain.model.Product
+import com.ccandeladev.androidtesting.productlist.presentation.components.FiltersMenu
 
 @Composable
 fun ProductListScreen(productListViewModel: ProductListViewModel = hiltViewModel()) {
@@ -77,7 +78,9 @@ fun ProductListScreen(productListViewModel: ProductListViewModel = hiltViewModel
                         .fillMaxSize()
                         .padding(paddingValues = paddingValues)
                 ) {
-                    Text("He llegado al exito")
+                    FiltersMenu(
+                        state = state,
+                        onCategorySelected = { category -> productListViewModel.setCategory(category) })
                     LazyColumn() {
                         items(state.inventory) { product: Product ->
                             Box(
@@ -86,7 +89,7 @@ fun ProductListScreen(productListViewModel: ProductListViewModel = hiltViewModel
                                     .height(50.dp)
                                     .background(Color.Red),
                                 contentAlignment = Alignment.Center
-                            ){
+                            ) {
                                 Text(product.name)
                             }
 
