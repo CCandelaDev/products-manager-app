@@ -3,6 +3,7 @@ package com.ccandeladev.androidtesting.productlist.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ccandeladev.androidtesting.productlist.domain.model.Product
+import com.ccandeladev.androidtesting.productlist.domain.model.SortOption
 import com.ccandeladev.androidtesting.productlist.domain.usecase.GetInventoryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -42,7 +43,8 @@ class ProductListViewModel @Inject constructor(private val getInventoryUseCase: 
                     ProductListUiState.Success(
                         inventory = inventory,
                         categories = categories,
-                        selectedCategory = null // Waiting to complete
+                        selectedCategory = null,// Waiting to complete
+                        sortOption = SortOption.NONE //Waiting to complete (set one as default)
                     )
             }
             .catch { e: Throwable ->
@@ -54,8 +56,15 @@ class ProductListViewModel @Inject constructor(private val getInventoryUseCase: 
     fun setCategory(category: String?) {
         viewModelScope.launch {
             //Llamar settingRepository
+            TODO()
         }
     }
+
+    fun setSortOption(sortOption: SortOption) {
+        //Llamar settingRepository
+        TODO()
+    }
+
 
 
 }

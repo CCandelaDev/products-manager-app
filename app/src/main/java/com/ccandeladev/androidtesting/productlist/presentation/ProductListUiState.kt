@@ -1,6 +1,7 @@
 package com.ccandeladev.androidtesting.productlist.presentation
 
 import com.ccandeladev.androidtesting.productlist.domain.model.Product
+import com.ccandeladev.androidtesting.productlist.domain.model.SortOption
 
 // Class for all the states
 sealed class ProductListUiState {
@@ -9,8 +10,9 @@ sealed class ProductListUiState {
     data class Success(
         val inventory: List<Product>,
         val categories: List<String>,
-//      productList: List<>,
+        //productList: List<>,
         val selectedCategory: String?,
-//      sortOption
+        //productlist.model.SortOption
+        val sortOption: SortOption
     ) : ProductListUiState()
 }

@@ -80,7 +80,13 @@ fun ProductListScreen(productListViewModel: ProductListViewModel = hiltViewModel
                 ) {
                     FiltersMenu(
                         state = state,
-                        onCategorySelected = { category -> productListViewModel.setCategory(category) })
+                        onCategorySelected = { category -> productListViewModel.setCategory(category) },
+                        onSortSelected = { sortOption ->
+                            productListViewModel.setSortOption(
+                                sortOption
+                            )
+                        }
+                    )
                     LazyColumn() {
                         items(state.inventory) { product: Product ->
                             Box(
@@ -96,6 +102,7 @@ fun ProductListScreen(productListViewModel: ProductListViewModel = hiltViewModel
                         }
                     }
                 }
+
             }
         }
 
