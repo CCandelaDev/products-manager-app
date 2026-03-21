@@ -29,6 +29,10 @@ class ProductListViewModel @Inject constructor(private val getInventoryUseCase: 
     private val _events = MutableSharedFlow<ProductListEvent>(extraBufferCapacity = 1)
     val events: SharedFlow<ProductListEvent> = _events // State for events
 
+    // for the status of the filters
+    private val _filtersVisible = MutableStateFlow<Boolean>(value = true)
+    val filtersVisible: StateFlow<Boolean> = _filtersVisible.asStateFlow()
+
     // Begin loading the products
     init {
         loadProducts()
@@ -65,6 +69,9 @@ class ProductListViewModel @Inject constructor(private val getInventoryUseCase: 
         TODO()
     }
 
+    fun setFilterVisible(showFilter: Boolean) {
+        _filtersVisible.value = showFilter
+    }
 
 
 }

@@ -36,7 +36,7 @@ class ProductRepositoryImpl @Inject constructor(
 
     override fun getInventory(): Flow<List<Product>> {
         return localDataSource.getAllInventory()
-            .map { entities -> entities.mapNotNull { it.toDomain() } }
+            .map { entities -> entities.mapNotNull { it.toDomain() } } //Filter null (no exist)
             .onStart {
                 refreshScope.launch {
                     if (!refreshMutex.tryLock()) return@launch

@@ -7,7 +7,9 @@ import com.ccandeladev.androidtesting.core.domain.coroutines.DispatchersProvider
 import com.ccandeladev.androidtesting.productlist.data.local.database.ProductManagerDatabase
 import com.ccandeladev.androidtesting.productlist.data.local.database.dao.OfferDao
 import com.ccandeladev.androidtesting.productlist.data.local.database.dao.ProductDao
+import com.ccandeladev.androidtesting.productlist.data.repository.OfferRepositoryImpl
 import com.ccandeladev.androidtesting.productlist.data.repository.ProductRepositoryImpl
+import com.ccandeladev.androidtesting.productlist.domain.repository.OfferRepository
 import com.ccandeladev.androidtesting.productlist.domain.repository.ProductRepository
 import dagger.Module
 import dagger.Provides
@@ -31,6 +33,12 @@ object DataModule {
     @Singleton
     fun provideProductRepository(productRepositoryImpl: ProductRepositoryImpl): ProductRepository {
         return productRepositoryImpl
+    }
+
+    @Provides
+    @Singleton
+    fun provideOfferRepository(offerRepositoryImpl: OfferRepositoryImpl): OfferRepository {
+        return offerRepositoryImpl
     }
 
     //use Room.databaseBuilder to create the instance of ProductManagerDatabase.

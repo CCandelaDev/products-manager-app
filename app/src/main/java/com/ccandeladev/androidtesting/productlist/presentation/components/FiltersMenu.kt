@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import com.ccandeladev.androidtesting.productlist.domain.model.SortOption
 import com.ccandeladev.androidtesting.productlist.presentation.ProductListUiState
@@ -36,7 +37,7 @@ fun FiltersMenu(
             modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Categories")
+            Text("Categories", fontStyle = FontStyle.Italic)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -58,7 +59,7 @@ fun FiltersMenu(
             }
             HorizontalDivider()
 
-            Text("Order by ")
+            Text("Order by", fontStyle = FontStyle.Italic)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -67,19 +68,19 @@ fun FiltersMenu(
             ) {
                 FilterChip(
                     selected = state.sortOption == SortOption.PRICE_ASC,
-                    onClick = {onSortSelected(SortOption.PRICE_ASC)},
+                    onClick = { onSortSelected(SortOption.PRICE_ASC) },
                     label = { Text("Price ↑", style = MaterialTheme.typography.labelSmall) },
                     modifier = Modifier.weight(1f)
                 )
                 FilterChip(
                     selected = state.sortOption == SortOption.PRICE_DES,
-                    onClick = {onSortSelected(SortOption.PRICE_DES)},
+                    onClick = { onSortSelected(SortOption.PRICE_DES) },
                     label = { Text("Price ↓", style = MaterialTheme.typography.labelSmall) },
                     modifier = Modifier.weight(1f)
                 )
                 FilterChip(
                     selected = state.sortOption == SortOption.DISCOUNT,
-                    onClick = {onSortSelected(SortOption.DISCOUNT)},
+                    onClick = { onSortSelected(SortOption.DISCOUNT) },
                     label = { Text("Discount", style = MaterialTheme.typography.labelSmall) },
                     modifier = Modifier.weight(1f)
                 )
