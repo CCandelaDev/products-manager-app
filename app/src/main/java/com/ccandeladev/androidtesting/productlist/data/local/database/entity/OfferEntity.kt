@@ -12,7 +12,7 @@ data class OfferEntity(
     val percent: Int? = null,
     val buyX: Int? = null,
     val payY: Int? = null,
-    val startAtEpoch: Long? = null,
-    val endAtEpoch: Long? = null,
+    val startAtEpoch: Long,
+    val endAtEpoch: Long
 
     )
