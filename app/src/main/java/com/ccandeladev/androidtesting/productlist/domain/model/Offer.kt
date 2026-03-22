@@ -4,7 +4,7 @@ import java.time.Instant
 
 enum class OfferType {
     PERCENT,
-    BUY_X_APY_Y
+    BUY_X_PAY_Y
 }
 
 data class Offer(

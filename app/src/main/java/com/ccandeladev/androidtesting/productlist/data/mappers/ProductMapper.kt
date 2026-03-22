@@ -7,7 +7,7 @@ import com.ccandeladev.androidtesting.productlist.domain.model.Product
 // ###mappers for ProductsRepository Impl###
 //Convert what is in the internet into something the BD can save
 fun ProductResponse.toEntity(): ProductEntity {
-    val finalPrice = priceCents?.div(other = 100) ?: 0.0
+    val finalPrice = priceCents?.toDouble()?.div(other = 100) ?: 0.0
 
     return ProductEntity(
         id = id,

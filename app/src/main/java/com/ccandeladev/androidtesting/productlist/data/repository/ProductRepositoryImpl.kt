@@ -38,6 +38,7 @@ class ProductRepositoryImpl @Inject constructor(
         return localDataSource.getAllInventory()
             .map { entities -> entities.mapNotNull { it.toDomain() } } //Filter null (no exist)
             .onStart {
+                emit(emptyList()) //To initial list empty
                 refreshScope.launch {
                     if (!refreshMutex.tryLock()) return@launch
                     try {

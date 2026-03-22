@@ -1,6 +1,9 @@
 package com.ccandeladev.androidtesting.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import com.ccandeladev.androidtesting.core.data.coroutines.DefaultDispatchersProvider
 import com.ccandeladev.androidtesting.core.domain.coroutines.DispatchersProvider
@@ -11,12 +14,16 @@ import com.ccandeladev.androidtesting.productlist.data.repository.OfferRepositor
 import com.ccandeladev.androidtesting.productlist.data.repository.ProductRepositoryImpl
 import com.ccandeladev.androidtesting.productlist.domain.repository.OfferRepository
 import com.ccandeladev.androidtesting.productlist.domain.repository.ProductRepository
+import com.ccandeladev.androidtesting.productlist.domain.repository.SettingsRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+
+//To provide preferences(settings)
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("settings")
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -41,7 +48,7 @@ object DataModule {
         return offerRepositoryImpl
     }
 
-    //use Room.databaseBuilder to create the instance of ProductManagerDatabase.
+    //use Room.databaseBuilder to create the instance of ProductManagerDatabase. (Inject context)
     @Provides
     @Singleton
     fun provideDataBase(@ApplicationContext context: Context): ProductManagerDatabase {
@@ -57,9 +64,24 @@ object DataModule {
     fun provideProductDao(productManagerDatabase: ProductManagerDatabase): ProductDao {
         return productManagerDatabase.productDao()
     }
+
     //function that que receive the DB and return db.offerDao().
     @Provides
-    fun provideOfferDao(productManagerDatabase: ProductManagerDatabase): OfferDao{
+    fun provideOfferDao(productManagerDatabase: ProductManagerDatabase): OfferDao {
         return productManagerDatabase.offerDao()
+    }
+
+    // For dataStore (user settings)
+    @Provides
+    @Singleton
+    fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+        return context.dataStore
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideSettingsRepository(settingsRepository: SettingsRepository): SettingsRepository{
+        return settingsRepository
     }
 }

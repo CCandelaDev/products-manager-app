@@ -37,6 +37,7 @@ class OfferRepositoryImpl @Inject constructor(
         return localDataSource.getAllOffers()
             .map { entities -> entities.mapNotNull{ it.toDomain(json) } } //Filter null (no exist)
             .onStart {
+                emit(emptyList()) //To initial list empty
                 refreshScope.launch {
                     if (!refreshMutex.tryLock()) return@launch
                     try {

@@ -29,8 +29,10 @@ fun OfferEntity.toDomain(json: Json): Offer? { //Json to decode
 
     val finalOfferValue = when(finalType){
         OfferType.PERCENT -> percent
-        OfferType.BUY_X_APY_Y -> payY
+        OfferType.BUY_X_PAY_Y -> payY
     }?.toDouble()
+
+    finalOfferValue ?: return null
 
     return Offer(
         id = id,
@@ -62,7 +64,7 @@ fun OfferResponse.toEntity(json: Json): OfferEntity? {
         type = type,
         percent = percent,
         buyX = buyX,
-        payY = buyY,
+        payY = payY,
         startAtEpoch = startAtEpoch,
         endAtEpoch = endAtEpoch
 

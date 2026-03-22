@@ -21,8 +21,8 @@ data class OfferResponse(
     val percent: Int? = null,
     @SerialName("buyX")
     val buyX: Int? = null,
-    @SerialName("buyY")
-    val buyY: Int? = null,
+    @SerialName("payY")
+    val payY: Int? = null,
     @SerialName("startAtEpoch")
     val startAtEpoch: Long? = null,
     @SerialName("endAtEpoch")

@@ -2,7 +2,7 @@ package com.ccandeladev.androidtesting.productlist.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ccandeladev.androidtesting.productlist.domain.model.Product
+import com.ccandeladev.androidtesting.productlist.domain.model.ProductWithOffer
 import com.ccandeladev.androidtesting.productlist.domain.model.SortOption
 import com.ccandeladev.androidtesting.productlist.domain.usecase.GetInventoryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,8 +41,8 @@ class ProductListViewModel @Inject constructor(private val getInventoryUseCase: 
     fun loadProducts() {
         _uiState.value = ProductListUiState.Loading
         getInventoryUseCase()
-            .onEach { inventory: List<Product> ->
-                val categories = inventory.map { it.category }.distinct().sorted()
+            .onEach { inventory: List<ProductWithOffer> ->
+                val categories = inventory.map { it.product.category }.distinct().sorted()
                 _uiState.value =
                     ProductListUiState.Success(
                         inventory = inventory,
