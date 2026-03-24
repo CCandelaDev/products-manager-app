@@ -35,13 +35,16 @@ import com.ccandeladev.androidtesting.productlist.presentation.components.HomeTo
 import com.ccandeladev.androidtesting.productlist.presentation.components.ProductItem
 
 @Composable
-fun ProductListScreen(productListViewModel: ProductListViewModel = hiltViewModel()) {
+fun ProductListScreen(
+    productListViewModel: ProductListViewModel = hiltViewModel(),
+    navigateToSettings: () -> Unit
+) {
     // To get hooked on the life cycle
     val uiState by productListViewModel.uiState.collectAsStateWithLifecycle()
 
     val snackBarHostState = remember { SnackbarHostState() }
 
-    val filtersVisible by productListViewModel.filtersVisible.collectAsStateWithLifecycle()
+    val filtersVisible by productListViewModel.filterVisible.collectAsStateWithLifecycle()
 
     //When any event launch -> to do action
     LaunchedEffect(Unit) {
@@ -58,7 +61,9 @@ fun ProductListScreen(productListViewModel: ProductListViewModel = hiltViewModel
         topBar = {
             HomeTopAppBar(
                 filtersVisible = filtersVisible,
-                onFiltersSelected = { showFilter -> productListViewModel.setFilterVisible(showFilter) })
+                onFiltersSelected = { showFilter -> productListViewModel.setFilterVisible(showFilter) },
+                onSettingsSelected = navigateToSettings
+            )
         },
         snackbarHost = { SnackbarHost(snackBarHostState) }
     ) { paddingValues ->

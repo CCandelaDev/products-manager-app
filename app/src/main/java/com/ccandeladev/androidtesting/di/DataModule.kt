@@ -12,6 +12,7 @@ import com.ccandeladev.androidtesting.productlist.data.local.database.dao.OfferD
 import com.ccandeladev.androidtesting.productlist.data.local.database.dao.ProductDao
 import com.ccandeladev.androidtesting.productlist.data.repository.OfferRepositoryImpl
 import com.ccandeladev.androidtesting.productlist.data.repository.ProductRepositoryImpl
+import com.ccandeladev.androidtesting.productlist.data.repository.SettingsRepositoryImpl
 import com.ccandeladev.androidtesting.productlist.domain.repository.OfferRepository
 import com.ccandeladev.androidtesting.productlist.domain.repository.ProductRepository
 import com.ccandeladev.androidtesting.productlist.domain.repository.SettingsRepository
@@ -81,7 +82,7 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideSettingsRepository(settingsRepository: SettingsRepository): SettingsRepository{
-        return settingsRepository
+    fun provideSettingsRepository(settingsRepositoryImpl: SettingsRepositoryImpl): SettingsRepository{
+        return settingsRepositoryImpl
     }
 }

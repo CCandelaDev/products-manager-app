@@ -86,7 +86,7 @@ class SettingsRepositoryImpl @Inject constructor(
 
 
     override val filtersVisible: Flow<Boolean> =
-        dataStoreFlow.map { preferences -> preferences[FILTERS_VISIBLE_KEY] ?: true }
+        dataStoreFlow.map { preferences -> preferences[FILTERS_VISIBLE_KEY] ?: false }
 
 
     override suspend fun setFiltersVisible(value: Boolean) {

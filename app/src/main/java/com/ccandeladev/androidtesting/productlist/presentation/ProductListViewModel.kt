@@ -2,23 +2,32 @@ package com.ccandeladev.androidtesting.productlist.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ccandeladev.androidtesting.productlist.domain.model.ProductOffer
 import com.ccandeladev.androidtesting.productlist.domain.model.ProductWithOffer
 import com.ccandeladev.androidtesting.productlist.domain.model.SortOption
+import com.ccandeladev.androidtesting.productlist.domain.repository.SettingsRepository
 import com.ccandeladev.androidtesting.productlist.domain.usecase.GetInventoryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ProductListViewModel @Inject constructor(private val getInventoryUseCase: GetInventoryUseCase) :
+class ProductListViewModel @Inject constructor(
+    private val getInventoryUseCase: GetInventoryUseCase,
+    private val settingsRepository: SettingsRepository
+) :
     ViewModel(
     ) {
 
@@ -29,9 +38,15 @@ class ProductListViewModel @Inject constructor(private val getInventoryUseCase: 
     private val _events = MutableSharedFlow<ProductListEvent>(extraBufferCapacity = 1)
     val events: SharedFlow<ProductListEvent> = _events // State for events
 
-    // for the status of the filters
-    private val _filtersVisible = MutableStateFlow<Boolean>(value = true)
-    val filtersVisible: StateFlow<Boolean> = _filtersVisible.asStateFlow()
+    val filterVisible: StateFlow<Boolean> = settingsRepository.filtersVisible.stateIn(
+        scope = viewModelScope,
+        initialValue = false,
+        started = SharingStarted.WhileSubscribed(5000)
+
+    )
+
+    private var inventoryJob: Job? = null
+
 
     // Begin loading the products
     init {
@@ -40,37 +55,87 @@ class ProductListViewModel @Inject constructor(private val getInventoryUseCase: 
 
     fun loadProducts() {
         _uiState.value = ProductListUiState.Loading
-        getInventoryUseCase()
-            .onEach { inventory: List<ProductWithOffer> ->
-                val categories = inventory.map { it.product.category }.distinct().sorted()
-                _uiState.value =
-                    ProductListUiState.Success(
-                        inventory = inventory,
-                        categories = categories,
-                        selectedCategory = null,// Waiting to complete
-                        sortOption = SortOption.NONE //Waiting to complete (set one as default)
-                    )
+        inventoryJob?.cancel()
+        inventoryJob = combine(
+            getInventoryUseCase(),
+            settingsRepository.selectCategory,
+            settingsRepository.sortOption
+        ) { inventory, category, sortOption ->
+            var filteredInventory = inventory
+
+            if (category != null) { // user select category
+                filteredInventory = filteredInventory.filter {
+                    it.product.category == category
+                }
             }
-            .catch { e: Throwable ->
-                _uiState.value = ProductListUiState.Error(e.message.orEmpty())
+
+            val sorted = when (sortOption) {
+                SortOption.PRICE_ASC -> filteredInventory.sortedBy { effectivePrice(item = it) }
+                SortOption.PRICE_DES -> filteredInventory.sortedByDescending { effectivePrice(item = it) }
+                SortOption.NONE -> filteredInventory
+                SortOption.DISCOUNT ->
+                //filteredInventory.sortedByDescending { effectiveDiscountPercent(item = it) }
+                    filteredInventory.sortedWith (
+                        compareByDescending<ProductWithOffer> {
+                          effectiveDiscountPercent(item = it)
+                        }.thenBy { it.product.price }
+                            )
             }
-            .launchIn(viewModelScope)
+
+            val categories = inventory.map { it.product.category }.distinct().sorted()
+
+            ProductListUiState.Success(
+                inventory = sorted,
+                categories = categories,
+                selectedCategory = category,
+                sortOption = sortOption
+            )
+        }.onEach { state ->
+            _uiState.value = state
+
+        }.catch { e: Throwable ->
+            _uiState.value = ProductListUiState.Error(e.message.orEmpty())
+        }.launchIn(viewModelScope)
+
     }
 
     fun setCategory(category: String?) {
         viewModelScope.launch {
-            //Llamar settingRepository
-            TODO()
+            //call settingRepository
+            settingsRepository.setSelectCategory(category)
         }
     }
 
     fun setSortOption(sortOption: SortOption) {
-        //Llamar settingRepository
-        TODO()
+        //call settingRepository
+        viewModelScope.launch {
+            settingsRepository.setSortOption(sortOption)
+        }
+
     }
 
     fun setFilterVisible(showFilter: Boolean) {
-        _filtersVisible.value = showFilter
+        //_filtersVisible.value = showFilter
+        viewModelScope.launch {
+            settingsRepository.setFiltersVisible(showFilter)
+        }
+    }
+
+
+    //
+    private fun effectiveDiscountPercent(item: ProductWithOffer): Double {
+        return when (val offer = item.offer) {
+            is ProductOffer.Percent -> offer.percent
+            else -> 0.0
+        }
+    }
+
+    //
+    private fun effectivePrice(item: ProductWithOffer): Double {
+        return when (val offer = item.offer) {
+            is ProductOffer.Percent -> offer.discountedPrice
+            else -> item.product.price
+        }
     }
 
 

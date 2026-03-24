@@ -17,8 +17,8 @@ import androidx.compose.runtime.Composable
 @Composable
 fun HomeTopAppBar(
     filtersVisible: Boolean = true,
-    onFiltersSelected: (Boolean) -> Unit = {},
-    onSettingsSelected: () -> Unit = {}
+    onFiltersSelected: (Boolean) -> Unit,
+    onSettingsSelected: () -> Unit
 ) {
 
     TopAppBar(
