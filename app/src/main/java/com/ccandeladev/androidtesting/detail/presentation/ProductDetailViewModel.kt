@@ -20,6 +20,7 @@ class ProductDetailViewModel @Inject constructor() : ViewModel() {
     private val _events = MutableSharedFlow<ProductDetailEvent>(extraBufferCapacity = 1)
     val events: SharedFlow<ProductDetailEvent> = _events
 
+    //Load product
     fun loadProduct(productId: String){
 
     }
