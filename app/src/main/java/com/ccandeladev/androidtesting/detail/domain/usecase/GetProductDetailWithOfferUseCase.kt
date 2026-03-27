@@ -1,0 +1,37 @@
+package com.ccandeladev.androidtesting.detail.domain.usecase
+
+import com.ccandeladev.androidtesting.productlist.domain.model.ProductWithOffer
+import com.ccandeladev.androidtesting.productlist.domain.repository.OfferRepository
+import com.ccandeladev.androidtesting.productlist.domain.repository.ProductRepository
+import com.ccandeladev.androidtesting.productlist.domain.usecase.GetOfferForProduct
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import java.time.Instant
+import javax.inject.Inject
+
+class GetProductDetailWithOfferUseCase @Inject constructor(
+    private val productRepository: ProductRepository,
+    private val offerRepository: OfferRepository,
+    private val getOfferForProduct: GetOfferForProduct
+) {
+    operator fun invoke(productId: String): Flow<ProductWithOffer?> {
+        return combine(
+            // Observes both flows simultaneously and re-executes the block
+            // whenever either of them emits a new value
+            productRepository.getProductById(productId),
+            offerRepository.getActiveOffers()
+        ) { product, offers ->
+            val now = Instant.now()
+            val activeOffers = offers.filter {
+                it.startTime <= now && it.endTime >= now
+            }
+            // Typically used with ?.let { } for null safety
+            product?.let {
+                val finalOffer = getOfferForProduct(it, activeOffers)
+                ProductWithOffer(product = it, offer = finalOffer)
+            }
+
+        }
+
+    }
+}

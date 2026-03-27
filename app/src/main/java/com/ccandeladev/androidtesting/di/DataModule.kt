@@ -5,9 +5,10 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
+import com.ccandeladev.androidtesting.cart.data.local.database.dao.CartItemDao
 import com.ccandeladev.androidtesting.core.data.coroutines.DefaultDispatchersProvider
+import com.ccandeladev.androidtesting.core.data.local.database.ProductManagerDatabase
 import com.ccandeladev.androidtesting.core.domain.coroutines.DispatchersProvider
-import com.ccandeladev.androidtesting.productlist.data.local.database.ProductManagerDatabase
 import com.ccandeladev.androidtesting.productlist.data.local.database.dao.OfferDao
 import com.ccandeladev.androidtesting.productlist.data.local.database.dao.ProductDao
 import com.ccandeladev.androidtesting.productlist.data.repository.OfferRepositoryImpl
@@ -70,6 +71,11 @@ object DataModule {
     @Provides
     fun provideOfferDao(productManagerDatabase: ProductManagerDatabase): OfferDao {
         return productManagerDatabase.offerDao()
+    }
+
+    @Provides
+    fun provideCartItemDao(productManagerDatabase: ProductManagerDatabase): CartItemDao{
+        return productManagerDatabase.cartItemDao()
     }
 
     // For dataStore (user settings)

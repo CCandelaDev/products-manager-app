@@ -37,7 +37,8 @@ import com.ccandeladev.androidtesting.productlist.presentation.components.Produc
 @Composable
 fun ProductListScreen(
     productListViewModel: ProductListViewModel = hiltViewModel(),
-    navigateToSettings: () -> Unit
+    navigateToSettings: () -> Unit,
+    navigateToProductDetail: (String) -> Unit
 ) {
     // To get hooked on the life cycle
     val uiState by productListViewModel.uiState.collectAsStateWithLifecycle()
@@ -149,7 +150,9 @@ fun ProductListScreen(
                     } else {
                         LazyColumn() {
                             items(state.inventory) { item: ProductWithOffer ->
-                                ProductItem(item = item, onClick = {})
+                                ProductItem(
+                                    item = item,
+                                    onClick = { navigateToProductDetail(it.product.id) })
                             }
                         }
                     }

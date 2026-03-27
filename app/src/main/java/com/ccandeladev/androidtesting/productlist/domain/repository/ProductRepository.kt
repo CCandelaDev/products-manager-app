@@ -5,6 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface ProductRepository {
     fun getInventory(): Flow<List<Product>>
-    fun getProductById(id: String): Flow<Product>
+    fun getProductById(id: String): Flow<Product?>
     suspend fun refreshProduct()
 }
