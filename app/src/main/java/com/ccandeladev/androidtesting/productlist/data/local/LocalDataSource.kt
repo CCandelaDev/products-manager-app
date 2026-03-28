@@ -1,8 +1,8 @@
 package com.ccandeladev.androidtesting.productlist.data.local
 
 import android.util.Log
-import com.ccandeladev.androidtesting.cart.data.local.database.dao.CartItemDao
-import com.ccandeladev.androidtesting.cart.data.local.database.entity.CartItemEntity
+import com.ccandeladev.androidtesting.cart.data.local.database.dao.CartDao
+import com.ccandeladev.androidtesting.cart.data.local.database.entity.CartEntity
 import com.ccandeladev.androidtesting.productlist.data.local.database.dao.OfferDao
 import com.ccandeladev.androidtesting.productlist.data.local.database.dao.ProductDao
 import com.ccandeladev.androidtesting.productlist.data.local.database.entity.OfferEntity
@@ -10,11 +10,11 @@ import com.ccandeladev.androidtesting.productlist.data.local.database.entity.Pro
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-// For data persistence, it is used in the ProductRepositoryImpl
+// For data persistence, it is used in the ProductRepositoryImpl and CartRepositoryImpl
 class LocalDataSource @Inject constructor(
     private val productDao: ProductDao,
     private val offerDao: OfferDao,
-    private val cartItemDao: CartItemDao
+    private val cartDao: CartDao
 ) {
 
     fun getAllInventory(): Flow<List<ProductEntity>> = productDao.getAllInventory()
@@ -33,34 +33,34 @@ class LocalDataSource @Inject constructor(
         offerDao.replaceAll(offers = offers)
     }
 
-    fun getAllCartItems(): Flow<List<CartItemEntity>> = cartItemDao.getAllCartItems()
+    fun getAllCartItems(): Flow<List<CartEntity>> = cartDao.getAllCartItems()
 
-    suspend fun getCartItemById(productId: String): CartItemEntity? =
-        cartItemDao.getCartItemById(productId)
+    suspend fun getCartItemById(productId: String): CartEntity? =
+        cartDao.getCartItemById(productId)
 
-    suspend fun updateCartItem(cartItemEntity: CartItemEntity): Result<Unit> {
+    suspend fun updateCartItem(cartEntity: CartEntity): Result<Unit> {
         return try {
-            cartItemDao.updateCartItem(cartItemEntity)
+            cartDao.updateCartItem(cartEntity)
             Result.success(Unit)
         }catch (e: Exception){
             Result.failure(e)
         }
     }
 
-    suspend fun insertCartItem(cartItemEntity: CartItemEntity): Result<Unit>{
+    suspend fun insertCartItem(cartEntity: CartEntity): Result<Unit>{
         return runCatching { //workaround
-            cartItemDao.insertCartItem(cartItem = cartItemEntity)
+            cartDao.insertCartItem(cartItem = cartEntity)
         }
     }
-    suspend fun deleteCartItem(cartItemEntity: CartItemEntity): Result<Unit>{
+    suspend fun deleteCartItem(cartEntity: CartEntity): Result<Unit>{
         return runCatching { //workaround
-            cartItemDao.deleteCartItem(cartItem = cartItemEntity)
+            cartDao.deleteCartItem(cartItem = cartEntity)
         }
     }
 
     suspend fun clearCart(): Result<Unit>{
         return runCatching { //workaround
-            cartItemDao.clearCart()
+            cartDao.clearCart()
         }
     }
 
