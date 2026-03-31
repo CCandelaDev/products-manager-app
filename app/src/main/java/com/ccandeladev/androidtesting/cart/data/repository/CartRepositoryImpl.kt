@@ -43,4 +43,9 @@ class CartRepositoryImpl @Inject constructor(
     override suspend fun clearCart() {
         localDataSource.clearCart()
     }
+
+    override suspend fun getCartItemById(productId: String): CartItem? {
+        return  localDataSource.getCartItemById(productId)?.toDomain()
+    }
+
 }

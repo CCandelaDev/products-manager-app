@@ -6,6 +6,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import com.ccandeladev.androidtesting.cart.data.local.database.dao.CartDao
+import com.ccandeladev.androidtesting.cart.data.repository.CartRepositoryImpl
+import com.ccandeladev.androidtesting.cart.domain.repository.CartRepository
 import com.ccandeladev.androidtesting.core.data.coroutines.DefaultDispatchersProvider
 import com.ccandeladev.androidtesting.core.data.local.database.ProductManagerDatabase
 import com.ccandeladev.androidtesting.core.domain.coroutines.DispatchersProvider
@@ -58,7 +60,9 @@ object DataModule {
             context = context,
             ProductManagerDatabase::class.java,
             "product_manager_db"
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     //function that que receive the DB and return db.productDao().
@@ -90,5 +94,11 @@ object DataModule {
     @Singleton
     fun provideSettingsRepository(settingsRepositoryImpl: SettingsRepositoryImpl): SettingsRepository{
         return settingsRepositoryImpl
+    }
+
+    @Provides
+    @Singleton
+    fun provideCartRepository(cartRepositoryImpl: CartRepositoryImpl): CartRepository{
+        return cartRepositoryImpl
     }
 }

@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.ccandeladev.androidtesting.productlist.data.local.database.entity.ProductEntity
 import kotlinx.coroutines.flow.Flow
+
 @Dao
 interface ProductDao {
     @Query(value = "SELECT * FROM inventory")
@@ -24,9 +25,12 @@ interface ProductDao {
 
     // Both must be fulfilled or rollback
     @Transaction
-    suspend fun replaceAll(inventory:List<ProductEntity>){
+    suspend fun replaceAll(inventory: List<ProductEntity>) {
         clearInventory()
         insertInventory(inventory = inventory)
     }
+
+    @Query("SELECT * FROM inventory WHERE id IN (:productsIds)")
+    fun getInventoryByIds(productsIds: List<String>): Flow<List<ProductEntity>>
 
 }

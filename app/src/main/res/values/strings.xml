@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">AndroidTesting</string>
+    <string name="cart_title">Cart</string>
+    <string name="btn_retry">Retry</string>
+    <string name="emoji_cart">🛒</string>
+    <string name="empty_cart">Your cart is empty</string>
+    <string name="add_cart">Add products to cart</string>
+    <string name="cd_drecrease_quantity">Decrease quantity</string>
+    <string name="cd_increase_quantity">Increase quantity\n</string>
 </resources>

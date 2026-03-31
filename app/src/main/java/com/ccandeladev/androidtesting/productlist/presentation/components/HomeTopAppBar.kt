@@ -18,7 +18,8 @@ import androidx.compose.runtime.Composable
 fun HomeTopAppBar(
     filtersVisible: Boolean = true,
     onFiltersSelected: (Boolean) -> Unit,
-    onSettingsSelected: () -> Unit
+    onSettingsSelected: () -> Unit,
+    onCartSelected: () -> Unit
 ) {
 
     TopAppBar(
@@ -35,6 +36,7 @@ fun HomeTopAppBar(
             titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
         ),
         actions = {
+            //To open the filters
             IconButton(onClick = { onFiltersSelected(!filtersVisible) }) {
                 Icon(
                     imageVector = Icons.Default.FilterList,
@@ -42,9 +44,18 @@ fun HomeTopAppBar(
                     tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
+            //To navigate to settings
             IconButton(onClick = { onSettingsSelected() }) {
                 Icon(
                     imageVector = Icons.Default.Settings,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+            //To navigate to cart
+            IconButton(onClick = { onCartSelected()}) {
+                Icon(
+                    imageVector = Icons.Default.ShoppingCart,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )

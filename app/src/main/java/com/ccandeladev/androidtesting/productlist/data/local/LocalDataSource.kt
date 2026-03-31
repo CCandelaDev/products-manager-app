@@ -8,6 +8,7 @@ import com.ccandeladev.androidtesting.productlist.data.local.database.dao.Produc
 import com.ccandeladev.androidtesting.productlist.data.local.database.entity.OfferEntity
 import com.ccandeladev.androidtesting.productlist.data.local.database.entity.ProductEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
 // For data persistence, it is used in the ProductRepositoryImpl and CartRepositoryImpl
@@ -21,6 +22,12 @@ class LocalDataSource @Inject constructor(
 
     fun getProductById(productId: String): Flow<ProductEntity?> =
         productDao.getProductById(productId)
+
+    fun getInventoryByIds(productIds: Set<String>): Flow<List<ProductEntity?>>{
+        if(productIds.isEmpty()) return flowOf(emptyList())
+
+        return productDao.getInventoryByIds(productIds.toList()) //No support Set
+    }
 
     fun getAllOffers(): Flow<List<OfferEntity>> = offerDao.getAllOffers()
 

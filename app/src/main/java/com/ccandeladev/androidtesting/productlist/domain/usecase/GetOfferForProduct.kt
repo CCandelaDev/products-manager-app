@@ -13,7 +13,7 @@ class GetOfferForProduct @Inject constructor() {
         val productOffers = offers.filter { it.productIds.contains(product.id) }
 
         val buyPayOffer = productOffers.firstOrNull() { it.type == OfferType.BUY_X_PAY_Y }
-        //Improvement: Get the best BUY_X_APY_Y promotion -> get ratio
+        //Improvement: Get the Best Buy_X_APY_Y promotion -> get ratio
 
         if (buyPayOffer != null) {
             val buy = buyPayOffer.buyQuantity ?: return null

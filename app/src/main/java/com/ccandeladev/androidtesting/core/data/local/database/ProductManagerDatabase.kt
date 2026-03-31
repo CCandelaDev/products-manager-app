@@ -12,7 +12,7 @@ import com.ccandeladev.androidtesting.productlist.data.local.database.entity.Pro
 //Methods for providing DAO (Data access object)
 @Database(
     entities = [ProductEntity::class, OfferEntity::class, CartEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 abstract class ProductManagerDatabase: RoomDatabase() {

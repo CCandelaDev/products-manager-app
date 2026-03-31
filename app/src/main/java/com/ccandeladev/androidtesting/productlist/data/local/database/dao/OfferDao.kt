@@ -26,4 +26,6 @@ interface OfferDao {
         insertOffers(offers = offers)
     }
 
+
+
 }

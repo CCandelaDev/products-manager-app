@@ -38,7 +38,8 @@ import com.ccandeladev.androidtesting.productlist.presentation.components.Produc
 fun ProductListScreen(
     productListViewModel: ProductListViewModel = hiltViewModel(),
     navigateToSettings: () -> Unit,
-    navigateToProductDetail: (String) -> Unit
+    navigateToProductDetail: (String) -> Unit,
+    navigateToCart: () -> Unit
 ) {
     // To get hooked on the life cycle
     val uiState by productListViewModel.uiState.collectAsStateWithLifecycle()
@@ -63,7 +64,8 @@ fun ProductListScreen(
             HomeTopAppBar(
                 filtersVisible = filtersVisible,
                 onFiltersSelected = { showFilter -> productListViewModel.setFilterVisible(showFilter) },
-                onSettingsSelected = navigateToSettings
+                onSettingsSelected = { navigateToSettings() },
+                onCartSelected = { navigateToCart() }
             )
         },
         snackbarHost = { SnackbarHost(snackBarHostState) }

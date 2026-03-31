@@ -19,11 +19,14 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,9 +52,34 @@ fun ProductDetailScreen(
 
     val uiState by productDetailViewModel.uiState.collectAsStateWithLifecycle()
 
+    val snackBarHostState = remember { SnackbarHostState() }
+
     // to get productId
     LaunchedEffect(productId) {
         productDetailViewModel.loadProduct(productId)
+    }
+
+    LaunchedEffect(Unit) {
+        productDetailViewModel.events.collect { event ->
+            when (event) {
+                ProductDetailEvent.INSUFICIENT_STOCK_ERROR -> {
+                    snackBarHostState.showSnackbar("Insufficient stock")
+                }
+
+                ProductDetailEvent.NETWORK_ERROR -> {
+                    snackBarHostState.showSnackbar("Insufficient stock")
+                }
+
+                ProductDetailEvent.UNKNOWN_ERROR -> {
+                    snackBarHostState.showSnackbar("Insufficient stock")
+                }
+
+                ProductDetailEvent.SUCCESS_ADD_TO_CART -> {
+                    snackBarHostState.showSnackbar("Product added to cart")
+                }
+            }
+
+        }
     }
 
     Scaffold(
@@ -61,9 +89,13 @@ fun ProductDetailScreen(
                 onBackSelected = { onBack() })
         },
         bottomBar = {
-            AddToCartButton(product = uiState.item?.product, isLoading = uiState.isLoading) {productDetailViewModel.addToCart()}
+            AddToCartButton(
+                product = uiState.item?.product,
+                isLoading = uiState.isLoading
+            ) { productDetailViewModel.addToCart() }
 
-        }
+        },
+        snackbarHost = { SnackbarHost(snackBarHostState) }
 
     ) { paddingValues ->
         Column(

@@ -29,7 +29,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun okHttpClient(): OkHttpClient {
+    fun provideOkHttpClient(): OkHttpClient {
         // to intercept the logs and display more information
         val loggingInterceptor = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
