@@ -3,9 +3,9 @@ package com.ccandeladev.androidtesting.cart.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ccandeladev.androidtesting.cart.domain.repository.CartRepository
+import com.ccandeladev.androidtesting.cart.domain.usecase.GetCartItemsWithOffersUseCase
 import com.ccandeladev.androidtesting.cart.domain.usecase.GetCartSummaryUseCase
 import com.ccandeladev.androidtesting.cart.domain.usecase.UpdateCartItemUseCase
-import com.ccandeladev.androidtesting.cart.presentation.model.CartItemWithOffer
 import com.ccandeladev.androidtesting.productlist.domain.repository.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -17,9 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,7 +27,8 @@ class CartViewModel @Inject constructor(
     private val cartRepository: CartRepository,
     private val productRepository: ProductRepository,
     private val getCartSummaryUseCase: GetCartSummaryUseCase,
-    private val updateCartItemUseCase: UpdateCartItemUseCase
+    private val updateCartItemUseCase: UpdateCartItemUseCase,
+    private val getCartItemsWithOffersUseCase: GetCartItemsWithOffersUseCase
 ) : ViewModel() {
 
     // UI state: represents what the screen should display (Loading, Success, Error)
@@ -49,83 +48,29 @@ class CartViewModel @Inject constructor(
     }
 
 
-    /**
-     * Loads cart data and observes real-time changes
-     * This function sets up a reactive stream that:
-     * 1. Listens to cart item changes
-     * 2. Fetches product details for items in cart
-     * 3. Gets cart summary with applied discounts
-     * 4. Combines everything into UI state
-     */
-    fun loadCart() {
+
+     fun loadCart() {
         _uiState.value = CartUiState.Loading // Show loading indicator while fetching data
         cartJob?.cancel()  // Cancel any existing cart job to prevent multiple concurrent streams
 
+
         // Start new job to observe cart changes
-        cartJob =
-            cartRepository.getCartItems()
-                // flatMapLatest: it ensures that only the last transaction is processed.
-                .flatMapLatest { cartItems ->
-                    // Extract unique product IDs from cart items
-                    val ids = cartItems.mapTo(mutableSetOf()) { it.productId }
-
-                    // Handle empty cart scenario
-                    if (ids.isEmpty()) {
-                        // Cart is empty: just get summary (which will be zero) and emit success state
-                        getCartSummaryUseCase().map { summary ->
-                            _uiState.value = CartUiState.Success(
-                                summary = summary,
-                                cartItems = emptyList(),
-                                isLoading = false
-                            )
-
-                        }
-
-                    } else {
-                        // Cart has items: combine product details with cart summary
-                        combine(
-                            // Source 1: Get product details (prices, names, images) for all products in cart
-                            productRepository.getInventoryByIds(ids),
-                            // Source 2: Get cart summary with discounts applied
-                            getCartSummaryUseCase()
-                        ) { products, summary ->
-
-                            // Create a map for O(1) product lookup by ID
-
-                            val productsById = products.associateBy { it.id }
-                            // Enrich each cart item with its full product details
-
-                            val cartItemsWithProducts = cartItems.mapNotNull { cartItem ->
-
-                                val finalProduct =
-                                    productsById[cartItem.productId]
-                                        ?: return@mapNotNull null // Skip if product not found
-
-                                CartItemWithOffer(
-                                    product = finalProduct,
-                                    cartItem = cartItem
-                                )
-
-                            }
-                            // Update UI state with cart items and summary
-                            _uiState.value = CartUiState.Success(
-                                isLoading = false,
-                                cartItems = cartItemsWithProducts,
-                                summary = summary
-                            )
-
-                        }
-                    }
-
-
-                } // Handle any errors that occur during the stream
-                .catch { e ->
-                    _uiState.value = CartUiState.Error(e.message.orEmpty())
-
-                } // Launch the coroutine in ViewModel's scope (automatically cancels on ViewModel destruction)
-                .launchIn(viewModelScope)
-
+        cartJob = combine(
+            getCartItemsWithOffersUseCase(),
+            getCartSummaryUseCase()
+        ) { cartItemWithOffer, summary ->
+            _uiState.value = CartUiState.Success(
+                summary = summary,
+                cartItems = cartItemWithOffer,
+                isLoading = false
+            )
+        }.catch { e ->
+            _events.emit(CartEvent.ShowMessage(e.message.orEmpty()))
+        }
+            .launchIn(viewModelScope)
     }
+
+
 
     /**
      * Updates quantity of a specific product in the cart
@@ -150,6 +95,8 @@ class CartViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 cartRepository.removeFromCart(productId) // Execute removal
+                //Show delete message
+                _events.emit(CartEvent.ShowMessage("Product removed from cart"))
             } catch (e: Exception) {
                 _events.emit(CartEvent.ShowMessage(e.message.orEmpty()))
             }

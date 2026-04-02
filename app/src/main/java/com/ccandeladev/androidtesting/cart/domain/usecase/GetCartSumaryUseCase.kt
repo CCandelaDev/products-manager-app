@@ -26,7 +26,7 @@ class GetCartSummaryUseCase @Inject constructor(
 ) {
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend operator fun invoke(): Flow<CartSummary> {
+    operator fun invoke(): Flow<CartSummary> {
         // Step 1: Observe changes in the shopping cart
         return cartRepository.getCartItems()
             // flatMapLatest cancels previous calculation when new cart items arrive

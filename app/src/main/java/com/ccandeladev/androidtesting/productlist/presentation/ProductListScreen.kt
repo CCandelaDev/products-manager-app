@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ccandeladev.androidtesting.cart.presentation.CartUiState
+import com.ccandeladev.androidtesting.cart.presentation.CartViewModel
 import com.ccandeladev.androidtesting.productlist.domain.model.ProductWithOffer
 import com.ccandeladev.androidtesting.productlist.presentation.components.FiltersMenu
 import com.ccandeladev.androidtesting.productlist.presentation.components.HomeTopAppBar
@@ -37,12 +39,14 @@ import com.ccandeladev.androidtesting.productlist.presentation.components.Produc
 @Composable
 fun ProductListScreen(
     productListViewModel: ProductListViewModel = hiltViewModel(),
+    cartViewModel: CartViewModel = hiltViewModel(), //To show the icon with the products
     navigateToSettings: () -> Unit,
     navigateToProductDetail: (String) -> Unit,
     navigateToCart: () -> Unit
 ) {
     // To get hooked on the life cycle
     val uiState by productListViewModel.uiState.collectAsStateWithLifecycle()
+    val cartUiState by cartViewModel.uiState.collectAsStateWithLifecycle()
 
     val snackBarHostState = remember { SnackbarHostState() }
 
@@ -59,10 +63,23 @@ fun ProductListScreen(
         }
     }
 
+    //To show the icon with the products
+    val countItemCart = remember(cartUiState) {
+        when(val state = cartUiState){
+            // is CartUiState.Error ->
+           //  CartUiState.Loading ->
+            is CartUiState.Success -> {
+                state.cartItems.sumOf { it.cartItem.quantity }
+            }
+            else -> 0
+        }
+    }
+
     Scaffold(
         topBar = {
             HomeTopAppBar(
                 filtersVisible = filtersVisible,
+                countItemCart = countItemCart,
                 onFiltersSelected = { showFilter -> productListViewModel.setFilterVisible(showFilter) },
                 onSettingsSelected = { navigateToSettings() },
                 onCartSelected = { navigateToCart() }

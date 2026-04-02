@@ -20,12 +20,14 @@ private val DarkColorScheme = darkColorScheme(
     onPrimaryContainer = OnPrimaryContainerDark,
     secondary = SecondaryDark,
     onSecondary = OnSecondaryDark,
-    secondaryContainer = SecondaryContainerDark,
-    onSecondaryContainer = OnSecondaryContainerDark,
     tertiary = TertiaryDark,
     onTertiary = OnTertiaryDark,
+    tertiaryContainer = TertiaryContainerDark,
+    onTertiaryContainer = OnTertiaryDark,
     background = BackgroundDark,
-    surface = SurfaceDark
+    surface = SurfaceDark,
+    onBackground = OnSurfaceDark,
+    onSurface = OnSurfaceDark
 
 )
 
@@ -40,12 +42,14 @@ private val LightColorScheme = lightColorScheme(
     onPrimaryContainer = OnPrimaryContainerLight,
     secondary = SecondaryLight,
     onSecondary = OnSecondaryLight,
-    secondaryContainer = SecondaryContainerLight,
-    onSecondaryContainer = OnSecondaryContainerLight,
     tertiary = TertiaryLight,
     onTertiary = OnTertiaryLight,
+    tertiaryContainer = TertiaryContainerLight,
+    onTertiaryContainer = OnTertiaryLight,
     background = BackgroundLight,
-    surface = SurfaceLight
+    surface = SurfaceLight,
+    onBackground = OnSurfaceLight,
+    onSurface = OnSurfaceLight
 
 
     /* Other default colors to override

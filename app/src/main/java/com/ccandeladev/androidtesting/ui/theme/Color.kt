@@ -13,36 +13,34 @@ import androidx.compose.ui.graphics.Color
 
 
 
-// Light Theme Colors (Royal Blue & Coral)
-val PrimaryLight = Color(0xFF005AC1)
+// --- LIGHT THEME (Vibrante y limpio) ---
+val PrimaryLight = Color(0xFF0056D2)       // Azul Zafiro (Confianza)
 val OnPrimaryLight = Color(0xFFFFFFFF)
-val PrimaryContainerLight = Color(0xFFD8E2FF)
-val OnPrimaryContainerLight = Color(0xFF001A41)
-
-val SecondaryLight = Color(0xFF535F70)
+val PrimaryContainerLight = Color(0xFFDFF1FF) // Azul muy claro para fondos de items
+val OnPrimaryContainerLight = Color(0xFF001D47)
+val SecondaryLight = Color(0xFF5E5E5E)      // Gris Neutro para detalles
 val OnSecondaryLight = Color(0xFFFFFFFF)
-val SecondaryContainerLight = Color(0xFFD7E3F7)
-val OnSecondaryContainerLight = Color(0xFF101C2B)
 
-val TertiaryLight = Color(0xFFBA1A1A) // Coral para ofertas
+val TertiaryLight = Color(0xFFE44A32)       // Coral/Naranja (Urgencia para Ofertas)
 val OnTertiaryLight = Color(0xFFFFFFFF)
+val TertiaryContainerLight = Color(0xFFFFDAD4) // Fondo suave para etiquetas de oferta
 
-val BackgroundLight = Color(0xFFF8F9FF)
-val SurfaceLight = Color(0xFFF8F9FF)
+val BackgroundLight = Color(0xFFF6F8FA)     // Blanco "Hueso" (menos cansado que el blanco puro)
+val SurfaceLight = Color(0xFFFFFFFF)
+val OnSurfaceLight = Color(0xFF1A1C1E)      // Texto casi negro
 
-// Dark Theme Colors
-val PrimaryDark = Color(0xFFADC6FF)
-val OnPrimaryDark = Color(0xFF002E69)
-val PrimaryContainerDark = Color(0xFF004494)
-val OnPrimaryContainerDark = Color(0xFFD8E2FF)
+// --- DARK THEME (Elegante y OLED Friendly) ---
+val PrimaryDark = Color(0xFFB1C5FF)        // Azul pastel
+val OnPrimaryDark = Color(0xFF002C70)
+val PrimaryContainerDark = Color(0xFF0043A4)
+val OnPrimaryContainerDark = Color(0xFFDFF1FF)
+val SecondaryDark = Color(0xFFC4C6D0)
+val OnSecondaryDark = Color(0xFF2E3036)
 
-val SecondaryDark = Color(0xFFBCC7DB)
-val OnSecondaryDark = Color(0xFF253140)
-val SecondaryContainerDark = Color(0xFF3B4758)
-val OnSecondaryContainerDark = Color(0xFFD7E3F7)
+val TertiaryDark = Color(0xFFFFB4A9)       // Coral suave
+val OnTertiaryDark = Color(0xFF680003)
+val TertiaryContainerDark = Color(0xFF930006)
 
-val TertiaryDark = Color(0xFFFFB4AB)
-val OnTertiaryDark = Color(0xFF690005)
-
-val BackgroundDark = Color(0xFF111318)
-val SurfaceDark = Color(0xFF111318)
+val BackgroundDark = Color(0xFF0F1115)     // Gris casi negro (mejor que negro puro)
+val SurfaceDark = Color(0xFF1A1C1E)        // Superficie de tarjetas un poco más clara
+val OnSurfaceDark = Color(0xFFE2E2E6)      // Texto blanco suave
