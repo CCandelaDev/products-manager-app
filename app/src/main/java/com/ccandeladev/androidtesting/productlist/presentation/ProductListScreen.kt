@@ -139,7 +139,7 @@ fun ProductListScreen(
 
 
                     Text(
-                        "${state.inventory.size} products found in the inventory",
+                        "${state.inventory.size} products",
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.tertiary

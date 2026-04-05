@@ -8,4 +8,8 @@
     <string name="cd_drecrease_quantity">Decrease quantity</string>
     <string name="cd_increase_quantity">Increase quantity\n</string>
     <string name="cd_delete">Delete</string>
+    <string name="title_summary_card">Cart summary</string>
+    <string name="txt_subtotal">subtotal</string>
+    <string name="txt_total_discount">Discount</string>
+    <string name="txt_total_price">Total</string>
 </resources>

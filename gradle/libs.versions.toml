@@ -35,20 +35,27 @@ androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "u
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+# Icons-extended
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 
 #Images (Coil)
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
 
-#Navigation3
+#Navigation3#############################
+#lógica central de navegación (backstack, rutas, estado)
 navigation3-runtime = { group = "androidx.navigation3", name = "navigation3-runtime", version.ref = "navigation3" }
+#componentes de UI (NavDisplay, animaciones entre pantallas)
 navigation3-ui = { group = "androidx.navigation3", name = "navigation3-ui", version.ref = "navigation3" }
 
-#Hilt
+#Hilt################################
+##Inyección de dependencias, provee y gestiona el ciclo de vida de las dependencias
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+##Procesa las anotaciones @HiltViewModel, @Inject, @Module en tiempo de compilación
 hilt-compiler-ksp = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+##hiltViewModel() en Compose para obtener ViewModels inyectados con Hilt
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+#Deprecado---funcionalidad integrada en hilt-navigation-compose
 hilt-lifecycle-viewmodel-compose = { group = "androidx.hilt", name = "hilt-lifecycle-viewmodel-compose", version.ref = "hiltNavigationCompose" }
 
 #DataStore
@@ -60,28 +67,37 @@ room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-compiler-ksp = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 
 #Serialization
+#librería que hace el trabajo real de parsear JSON--hace el parseo JSON real
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
 
-#Retrofit
+#Retrofit###################################
+# cliente HTTP principal--gestiona endpoints y suspend functions
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+# convierte JSON a data classes de Kotlin automáticamente--le dice a Retrofit "usa kotlinx para parsear"
 converter-kotlinx-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "retrofit" }
+# motor HTTP que usa Retrofit internamente--hace la petición HTTP
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+# interceptor para ver en Logcat las peticiones y respuestas (muy útil en desarrollo)
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 
-#Coroutines
+#Coroutines##################################
+#base de coroutines (launch, async, Flow, etc.)
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
+#dispatcher principal (Dispatchers.Main) para Android
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 
-#Lifecycle
+#Lifecycle##################################
+#viewModel() en Compose + viewModelScope
 lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
+#collectAsStateWithLifecycle() para consumir Flows de forma segura en Compose
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeKtx" }
 
 
 [plugins]
-android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-application = { id = "com.android.application", version.ref = "agp" } # crea la APK
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" } # habilita Compose
 
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" } # habilita Kotlin
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" } #kotlinx-serialization
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }#Procesador de anotaciones moderno, reemplaza kapt (más rápido)
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" } #Habilita las anotaciones de Hilt (@HiltViewModel, @Module, etc)

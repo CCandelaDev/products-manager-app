@@ -23,6 +23,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -173,7 +174,8 @@ fun CartLoadingStateScreen(modifier: Modifier = Modifier) {
 
 @Composable
 fun CartSuccessStateScreen(
-    modifier: Modifier, state: CartUiState.Success,
+    modifier: Modifier,
+    state: CartUiState.Success,
     onIncreasedQuantity: (String, Int) -> Unit,
     onDecreasedQuantity: (String, Int) -> Unit,
     onRemove: (String) -> Unit
@@ -217,7 +219,7 @@ fun CartSuccessStateScreen(
 
             } else {
                 LazyColumn(
-                    Modifier.fillMaxSize(),
+                    Modifier.weight(1f),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),//Space between cards
                 ) {
@@ -244,6 +246,7 @@ fun CartSuccessStateScreen(
                     }
 
                 }
+
             }
         }
 
@@ -264,7 +267,98 @@ fun CartSuccessStateScreen(
 
 @Composable
 fun CartSummaryCard(modifier: Modifier, summary: CartSummary, currencyFormatter: NumberFormat) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(28.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            //when there are no discounts
+            Text(
+                stringResource(R.string.title_summary_card),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                fontWeight = FontWeight.Bold
+            )
 
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stringResource(R.string.txt_subtotal),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+
+                Text(
+                    currencyFormatter.format(
+                        summary.subTotal
+                    ),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+
+                //If we have something with discount
+                if (summary.discountTotal > 0) {
+                    //Discounts
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            stringResource(R.string.txt_total_discount),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.error
+                        )
+
+                        Text(
+                            currencyFormatter.format(
+                                summary.discountTotal
+                            ),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.error
+                        )
+
+                    }
+
+                }
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f),
+                    thickness = 1.dp
+                )
+
+                //Final price
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        stringResource(R.string.txt_total_price),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Text(
+                        currencyFormatter.format(
+                            summary.finalTotal
+                        ),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+
+                }
+
+        }
+    }
 }
 
 @Composable
@@ -422,16 +516,26 @@ fun CartItemCard(
                         quantity = cartItem.quantity.toString(),
                         canDecrease = cartItem.quantity > 1,
                         canIncrease = cartItem.quantity < product.stock,
-                        onDecreaseSelected = { onDecreasedQuantity(product.id, cartItem.quantity) },
-                        onIncreaseSelected = { onIncreasedQuantity(product.id, cartItem.quantity) }
+                        onDecreaseSelected = {
+                            onDecreasedQuantity(
+                                product.id,
+                                cartItem.quantity
+                            )
+                        },
+                        onIncreaseSelected = {
+                            onIncreasedQuantity(
+                                product.id,
+                                cartItem.quantity
+                            )
+                        }
                     )
                 }
             }
         }
     }
-
-
 }
+
+
 
 
 

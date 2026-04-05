@@ -30,14 +30,7 @@ fun HomeTopAppBar(
 ) {
 
     TopAppBar(
-        title = { Text(text = "MarketPlace") },
-        navigationIcon = {
-            Icon(
-                imageVector = Icons.Default.ShoppingCart,
-                contentDescription = "Icon shop",
-
-                )
-        },
+        title = { Text(text = "SportsPlace") },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
