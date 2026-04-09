@@ -10,8 +10,14 @@ import kotlinx.coroutines.flow.map
 class FakeProductRepository: ProductRepository {
 
     //Initial state is empty
-    private val _products = MutableStateFlow<List<Product>>(emptyList())
     //We don't want to access  external database
+    private val _products = MutableStateFlow<List<Product>>(emptyList())
+
+    //For apply in AddToCartUseCaseTest
+    fun setInventory(inventory: List<Product>){
+        _products.value = inventory
+    }
+
 
     override fun getInventory(): Flow<List<Product>> {
         return _products.asStateFlow()

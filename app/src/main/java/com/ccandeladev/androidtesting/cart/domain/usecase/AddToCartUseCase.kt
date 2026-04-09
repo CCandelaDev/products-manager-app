@@ -20,7 +20,7 @@ class AddToCartUseCase @Inject constructor(
 
         //To avoid having a Flow
         val product = productRepository.getProductById(productId).first()
-            ?: throw AppError.Validation.QuantityMustBePositive
+            ?: throw AppError.NotFoundError
 
         val existingItem = cartRepository.getCartItemById(productId)
         val newQuantity = (existingItem?.quantity ?: 0) + quantity
