@@ -56,7 +56,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.extended)
 
-//Images
+    //Images
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
 
@@ -68,6 +68,8 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     implementation(libs.hilt.lifecycle.viewmodel.compose)
+    testImplementation(libs.junit.junit)
+    testImplementation(libs.junit.junit)
     ksp(libs.hilt.compiler.ksp)
 
     //Room
@@ -95,8 +97,10 @@ dependencies {
     //Serialization
     implementation(libs.kotlinx.serialization.json)
 
-
+    //Unit Test
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
