@@ -1,12 +1,20 @@
 package com.ccandeladev.androidtesting.cart.domain.usecase
 
+import com.ccandeladev.androidtesting.cart.domain.repository.CartRepository
 import com.ccandeladev.androidtesting.core.builders.product
 import com.ccandeladev.androidtesting.core.domain.model.AppError
 import com.ccandeladev.androidtesting.core.fakes.FakeCartItemRepository
 import com.ccandeladev.androidtesting.core.fakes.FakeProductRepository
+import com.ccandeladev.androidtesting.productlist.domain.repository.ProductRepository
+import io.mockk.Runs
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.just
+import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
@@ -83,12 +91,13 @@ class AddToCartUseCaseTest {
         val fakeCartRepository = FakeCartItemRepository()
         //We want to test the stock management, so we need to have a product with a specific stock
         val fakeProductRepository = FakeProductRepository().apply {
-            setInventory(listOf(
-                product {
-                    withId(productId)
-                    withStock(2)
-                }
-            ))
+            setInventory(
+                listOf(
+                    product {
+                        withId(productId)
+                        withStock(2)
+                    }
+                ))
         }
         val useCase = AddToCartUseCase(
             fakeCartRepository,
@@ -96,7 +105,8 @@ class AddToCartUseCaseTest {
         )
 
         //When
-        val exception = runCatching { useCase(productId = productId, quantity = 5) }.exceptionOrNull()
+        val exception =
+            runCatching { useCase(productId = productId, quantity = 5) }.exceptionOrNull()
 
         //Then
         assertTrue(exception is AppError.Validation.InsufficientStock)
@@ -112,12 +122,13 @@ class AddToCartUseCaseTest {
         val fakeCartRepository = FakeCartItemRepository()
         //We want to test the stock management, so we need to have a product with a specific stock
         val fakeProductRepository = FakeProductRepository().apply {
-            setInventory(listOf(
-                product {
-                    withId(productId)
-                    withStock(10)
-                }
-            ))
+            setInventory(
+                listOf(
+                    product {
+                        withId(productId)
+                        withStock(10)
+                    }
+                ))
         }
         val useCase = AddToCartUseCase(
             fakeCartRepository,
@@ -138,12 +149,13 @@ class AddToCartUseCaseTest {
         val fakeCartRepository = FakeCartItemRepository()
         //We want to test the stock management, so we need to have a product with a specific stock
         val fakeProductRepository = FakeProductRepository().apply {
-            setInventory(listOf(
-                product {
-                    withId(productId)
-                    withStock(10)
-                }
-            ))
+            setInventory(
+                listOf(
+                    product {
+                        withId(productId)
+                        withStock(10)
+                    }
+                ))
         }
         val useCase = AddToCartUseCase(
             fakeCartRepository,
@@ -157,7 +169,7 @@ class AddToCartUseCaseTest {
         val items = fakeCartRepository.getCartItems().first()
         assertEquals(productId, items.first().productId)
         assertEquals(1, items.size)
-        assertEquals(3,items.first().quantity)
+        assertEquals(3, items.first().quantity)
 
     }
 
@@ -168,12 +180,13 @@ class AddToCartUseCaseTest {
         val fakeCartRepository = FakeCartItemRepository()
         //We want to test the stock management, so we need to have a product with a specific stock
         val fakeProductRepository = FakeProductRepository().apply {
-            setInventory(listOf(
-                product {
-                    withId(productId)
-                    withStock(10)
-                }
-            ))
+            setInventory(
+                listOf(
+                    product {
+                        withId(productId)
+                        withStock(10)
+                    }
+                ))
         }
         val useCase = AddToCartUseCase(
             fakeCartRepository,
@@ -195,8 +208,47 @@ class AddToCartUseCaseTest {
     @Test
     fun zero_quantity_does_not_call_any_repository() = runTest {
         //Given
+        val productRepository = mockk<ProductRepository>()
+        val cartRepository = mockk<CartRepository>()
+        val useCase =
+            AddToCartUseCase(productRepository = productRepository, cartRepository = cartRepository)
+
+        //When
+        val exception = runCatching { useCase(productId = "id", quantity = 0) }.exceptionOrNull()
+
+        //Then  //To verify method is not called
+        coVerify(exactly = 0) { productRepository.getProductById(any()) }
+        coVerify(exactly = 0) { cartRepository.getCartItemById(any()) }
+        coVerify(exactly = 0) { cartRepository.addToCart(any(), any()) }
+
+    }
 
 
+    @Test
+    fun valid_product_calls_addToCart_with_expected_values() = runTest {
+        //Given
+        val productRepository = mockk<ProductRepository>()
+        val cartRepository = mockk<CartRepository>()
+
+        val product = product {
+            withId("custom-id")
+            withStock(10)
+        }
+
+        coEvery { productRepository.getProductById("custom-id") } returns flowOf(product)
+        coEvery { cartRepository.getCartItemById("custom-id") } returns null
+        coEvery { cartRepository.addToCart("custom-id", 3) } just Runs
+
+
+        val useCase = AddToCartUseCase(cartRepository, productRepository)
+
+        //When
+        useCase("custom-id", 3)
+
+        //Then (To verify that all flow is complete)
+        coVerify(exactly = 1) { productRepository.getProductById("custom-id") }
+        coVerify(exactly = 1) { cartRepository.getCartItemById("custom-id") }
+        coVerify(exactly = 1) { cartRepository.addToCart("custom-id", 3) }
     }
 
 }
