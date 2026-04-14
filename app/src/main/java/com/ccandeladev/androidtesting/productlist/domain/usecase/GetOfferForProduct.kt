@@ -15,6 +15,7 @@ class GetOfferForProduct @Inject constructor() {
         val buyPayOffer = productOffers.firstOrNull() { it.type == OfferType.BUY_X_PAY_Y }
         //Improvement: Get the Best Buy_X_APY_Y promotion -> get ratio
 
+        // we prioritize buyPayOffer
         if (buyPayOffer != null) {
             val buy = buyPayOffer.buyQuantity ?: return null
             val pay = buyPayOffer.value.toInt().coerceIn(0, buy)

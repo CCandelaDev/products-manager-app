@@ -70,6 +70,10 @@ dependencies {
     implementation(libs.hilt.lifecycle.viewmodel.compose)
     testImplementation(libs.junit.junit)
     testImplementation(libs.junit.junit)
+    testImplementation(libs.junit.junit)
+    testImplementation(libs.junit.junit)
+    testImplementation(libs.junit.junit)
+    testImplementation(libs.junit.junit)
     ksp(libs.hilt.compiler.ksp)
 
     //Room
