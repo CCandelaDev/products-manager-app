@@ -3,7 +3,7 @@ package com.ccandeladev.androidtesting.cart.domain.usecase
 import com.ccandeladev.androidtesting.cart.domain.repository.CartRepository
 import com.ccandeladev.androidtesting.core.builders.product
 import com.ccandeladev.androidtesting.core.domain.model.AppError
-import com.ccandeladev.androidtesting.core.fakes.FakeCartItemRepository
+import com.ccandeladev.androidtesting.core.fakes.FakeCartRepository
 import com.ccandeladev.androidtesting.core.fakes.FakeProductRepository
 import com.ccandeladev.androidtesting.productlist.domain.repository.ProductRepository
 import io.mockk.Runs
@@ -23,7 +23,7 @@ class AddToCartUseCaseTest {
     @Test
     fun zero_quantity_throws_QuantityMustBePositive() = runTest { // Because is Coroutine
         //Given
-        val fakeCartRepository = FakeCartItemRepository()
+        val fakeCartRepository = FakeCartRepository()
         val fakeProductRepository = FakeProductRepository().apply {
             setInventory(emptyList())
         }
@@ -46,7 +46,7 @@ class AddToCartUseCaseTest {
     @Test
     fun negative_quantity_throws_QuantityMustBePositive() = runTest { // Because is Coroutine
         //Given
-        val fakeCartRepository = FakeCartItemRepository()
+        val fakeCartRepository = FakeCartRepository()
         val fakeProductRepository = FakeProductRepository()
 
         val useCase = AddToCartUseCase(
@@ -66,7 +66,7 @@ class AddToCartUseCaseTest {
     @Test
     fun non_existing_products_throws_NotFoundError() = runTest { // Because is Coroutine
         //Given
-        val fakeCartRepository = FakeCartItemRepository()
+        val fakeCartRepository = FakeCartRepository()
         val fakeProductRepository = FakeProductRepository()
 
         val useCase = AddToCartUseCase(
@@ -88,7 +88,7 @@ class AddToCartUseCaseTest {
 
         //Given
         val productId = "product-1"
-        val fakeCartRepository = FakeCartItemRepository()
+        val fakeCartRepository = FakeCartRepository()
         //We want to test the stock management, so we need to have a product with a specific stock
         val fakeProductRepository = FakeProductRepository().apply {
             setInventory(
@@ -119,7 +119,7 @@ class AddToCartUseCaseTest {
 
         //Given
         val productId = "product-1"
-        val fakeCartRepository = FakeCartItemRepository()
+        val fakeCartRepository = FakeCartRepository()
         //We want to test the stock management, so we need to have a product with a specific stock
         val fakeProductRepository = FakeProductRepository().apply {
             setInventory(
@@ -146,7 +146,7 @@ class AddToCartUseCaseTest {
     fun successful_case_adds_items_to_cart() = runTest {
         //Given
         val productId = "product-1"
-        val fakeCartRepository = FakeCartItemRepository()
+        val fakeCartRepository = FakeCartRepository()
         //We want to test the stock management, so we need to have a product with a specific stock
         val fakeProductRepository = FakeProductRepository().apply {
             setInventory(
@@ -177,7 +177,7 @@ class AddToCartUseCaseTest {
     fun default_quantity_adds_one_item_to_cart() = runTest {
         //Given
         val productId = "product-1"
-        val fakeCartRepository = FakeCartItemRepository()
+        val fakeCartRepository = FakeCartRepository()
         //We want to test the stock management, so we need to have a product with a specific stock
         val fakeProductRepository = FakeProductRepository().apply {
             setInventory(

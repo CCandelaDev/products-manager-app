@@ -8,8 +8,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 //Return The interface
-class FakeCartItemRepository : CartRepository {
+class FakeCartRepository : CartRepository {
 
+    // To Build "live" DataBase inside RAM
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
 
     override fun getCartItems(): Flow<List<CartItem>> {

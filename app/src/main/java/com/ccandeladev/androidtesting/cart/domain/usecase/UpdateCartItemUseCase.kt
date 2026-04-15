@@ -18,6 +18,7 @@ class UpdateCartItemUseCase @Inject constructor(
 
         if (quantity == 0) {
             cartRepository.removeFromCart(productId)
+            return
         }
 
         val product = productRepository.getProductById(productId).first() ?: throw AppError.NotFoundError
