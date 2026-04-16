@@ -1,5 +1,6 @@
 package com.ccandeladev.androidtesting.productlist.domain.usecase
 
+import com.ccandeladev.androidtesting.core.domain.util.Clock
 import com.ccandeladev.androidtesting.core.presentation.ex.activeAt
 import com.ccandeladev.androidtesting.productlist.domain.model.ProductWithOffer
 import com.ccandeladev.androidtesting.productlist.domain.repository.OfferRepository
@@ -7,14 +8,14 @@ import com.ccandeladev.androidtesting.productlist.domain.repository.ProductRepos
 import com.ccandeladev.androidtesting.productlist.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import java.time.Instant
 import javax.inject.Inject
 
 class GetInventoryUseCase @Inject constructor(
     private val productRepository: ProductRepository,
     private val offerRepository: OfferRepository,
     private val getOfferForProduct: GetOfferForProduct,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val clock: Clock
 ) {
 
     operator fun invoke(): Flow<List<ProductWithOffer>> {
@@ -25,7 +26,8 @@ class GetInventoryUseCase @Inject constructor(
             flow3 = settingsRepository.inStockOnly
         ) { inventory, offers, inStockOnly ->
 
-            val now = Instant.now()
+            //val now = Instant.now()
+            val now = clock.now()
 
             val activeOffers = offers.activeAt(now = now) // Extension function
 

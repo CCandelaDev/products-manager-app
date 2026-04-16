@@ -10,7 +10,9 @@ import com.ccandeladev.androidtesting.cart.data.repository.CartRepositoryImpl
 import com.ccandeladev.androidtesting.cart.domain.repository.CartRepository
 import com.ccandeladev.androidtesting.core.data.coroutines.DefaultDispatchersProvider
 import com.ccandeladev.androidtesting.core.data.local.database.ProductManagerDatabase
+import com.ccandeladev.androidtesting.core.data.util.SystemClock
 import com.ccandeladev.androidtesting.core.domain.coroutines.DispatchersProvider
+import com.ccandeladev.androidtesting.core.domain.util.Clock
 import com.ccandeladev.androidtesting.productlist.data.local.database.dao.OfferDao
 import com.ccandeladev.androidtesting.productlist.data.local.database.dao.ProductDao
 import com.ccandeladev.androidtesting.productlist.data.repository.OfferRepositoryImpl
@@ -100,5 +102,11 @@ object DataModule {
     @Singleton
     fun provideCartRepository(cartRepositoryImpl: CartRepositoryImpl): CartRepository{
         return cartRepositoryImpl
+    }
+
+    @Provides
+    @Singleton
+    fun provideClock(systemClock: SystemClock): Clock{
+        return systemClock
     }
 }
