@@ -76,6 +76,7 @@ dependencies {
     testImplementation(libs.junit.junit)
     testImplementation(libs.junit.junit)
     testImplementation(libs.junit.junit)
+    testImplementation(libs.junit.junit)
     ksp(libs.hilt.compiler.ksp)
 
     //Room
