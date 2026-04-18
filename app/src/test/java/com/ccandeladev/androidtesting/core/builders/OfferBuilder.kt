@@ -3,12 +3,12 @@ package com.ccandeladev.androidtesting.core.builders
 import com.ccandeladev.androidtesting.productlist.domain.model.Offer
 import com.ccandeladev.androidtesting.productlist.domain.model.OfferType
 import java.time.Instant
-
+const val DEFAULT_OFFER_ID = "offer-id"
 class OfferBuilder {
 
-    private var id: String = "promotion-1"
+    private var id: String = DEFAULT_OFFER_ID
     private var type: OfferType = OfferType.PERCENT
-    private var productIds: List<String> = listOf("product-1")
+    private var productIds: List<String> = listOf(DEFAULT_PRODUCT_ID)
     private var value: Double = 10.0
     private var buyQuantity: Int? = null
     private var startTime: Instant = Instant.now().minusSeconds(3600) //Now - 1 hour

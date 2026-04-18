@@ -3,6 +3,7 @@ package com.ccandeladev.androidtesting.cart.domain.usecase
 import com.ccandeladev.androidtesting.cart.domain.model.CartItem
 import com.ccandeladev.androidtesting.cart.domain.model.CartSummary
 import com.ccandeladev.androidtesting.cart.domain.repository.CartRepository
+import com.ccandeladev.androidtesting.core.domain.util.Clock
 import com.ccandeladev.androidtesting.productlist.domain.model.Offer
 import com.ccandeladev.androidtesting.productlist.domain.model.Product
 import com.ccandeladev.androidtesting.productlist.domain.model.ProductOffer
@@ -14,7 +15,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import java.time.Instant
 import javax.inject.Inject
 
 // Calculate the total purchase
@@ -22,7 +22,8 @@ class GetCartSummaryUseCase @Inject constructor(
     private val cartRepository: CartRepository,
     private val productRepository: ProductRepository,
     private val offerRepository: OfferRepository,
-    private val getOfferForProduct: GetOfferForProduct
+    private val getOfferForProduct: GetOfferForProduct,
+    private val clock: Clock
 ) {
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -46,7 +47,7 @@ class GetCartSummaryUseCase @Inject constructor(
                         offerRepository.getActiveOffers()
                     ) { products, offers ->
                         // Step 5: Calculate final summary when both data sources emit
-                        calculateSummary(cartItems, products, offers)
+                        calculateSummary(cartItems, products, offers, clock = clock)
                     }
                 }
             }
@@ -64,10 +65,11 @@ class GetCartSummaryUseCase @Inject constructor(
     private fun calculateSummary(
         cartItems: List<CartItem>,
         products: List<Product>,
-        offers: List<Offer>
+        offers: List<Offer>,
+        clock: Clock
     ): CartSummary {
         // Step 1: Get current time to filter active offers only
-        val now: Instant = Instant.now()
+        val now = clock.now()
 
         // Step 2: Filter offers that are currently active (within start and end time)
         val activeOffers = offers.filter { it.startTime <= now && it.endTime >= now }

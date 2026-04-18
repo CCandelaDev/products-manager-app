@@ -2,9 +2,12 @@ package com.ccandeladev.androidtesting.core.builders
 
 import com.ccandeladev.androidtesting.productlist.domain.model.Product
 
+const val DEFAULT_PRODUCT_ID = "product-id"
 class ProductBuilder {
+
     //Product attributes by default
-    private var id: String = "product-1"
+    //private var id: String = "product-1"
+    private var id: String = DEFAULT_PRODUCT_ID
     private var name: String = "product example"
     private var description: String = "Complete description"
     private var price: Double = 10.0

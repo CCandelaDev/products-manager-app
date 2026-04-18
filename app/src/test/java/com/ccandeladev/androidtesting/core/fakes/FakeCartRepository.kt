@@ -13,6 +13,10 @@ class FakeCartRepository : CartRepository {
     // To Build "live" DataBase inside RAM
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
 
+    fun setCartItems(items: List<CartItem>){
+        _cartItems.value = items
+    }
+
     override fun getCartItems(): Flow<List<CartItem>> {
         return _cartItems.asStateFlow()
     }

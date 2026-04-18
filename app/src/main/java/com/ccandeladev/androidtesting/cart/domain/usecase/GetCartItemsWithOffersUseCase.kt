@@ -3,6 +3,7 @@ package com.ccandeladev.androidtesting.cart.domain.usecase
 import com.ccandeladev.androidtesting.cart.domain.ex.activeAt
 import com.ccandeladev.androidtesting.cart.domain.repository.CartRepository
 import com.ccandeladev.androidtesting.cart.presentation.model.CartItemWithOffer
+import com.ccandeladev.androidtesting.core.domain.util.Clock
 import com.ccandeladev.androidtesting.productlist.domain.model.ProductWithOffer
 import com.ccandeladev.androidtesting.productlist.domain.repository.OfferRepository
 import com.ccandeladev.androidtesting.productlist.domain.repository.ProductRepository
@@ -12,14 +13,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import java.time.Instant
 import javax.inject.Inject
 
 class GetCartItemsWithOffersUseCase @Inject constructor(
     private val cartRepository: CartRepository,
     private val productRepository: ProductRepository,
     private val offerRepository: OfferRepository,
-    private val getOfferForProduct: GetOfferForProduct
+    private val getOfferForProduct: GetOfferForProduct,
+    private val clock: Clock
 ) {
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -35,7 +36,7 @@ class GetCartItemsWithOffersUseCase @Inject constructor(
                     productRepository.getInventoryByIds(ids),
                     offerRepository.getActiveOffers()
                 ) { products, offers ->
-                    val now = Instant.now()
+                    val now = clock.now()
                     val activeOffers = offers.activeAt(now)
                     val productsById = products.associateBy { it.id }
                     cartItems.mapNotNull { cartItem ->
