@@ -3,7 +3,7 @@ package com.ccandeladev.androidtesting.core.fakes
 import com.ccandeladev.androidtesting.core.domain.util.Clock
 import java.time.Instant
 
-// Interface
+//Interface Clock implementation
 class FakeSystemClock(): Clock {
     private var currentTime: Instant = Instant.now()
 
