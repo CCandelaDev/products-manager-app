@@ -43,7 +43,7 @@ class GetCartSummaryUseCaseTest {
     }
 
     @Test
-    fun `Given percent offer when invoke then calculate correctly`() = runTest {
+    fun `given percent offer when invoke then calculate correctly`() = runTest {
 
         //Given
         val product = product { withId(DEFAULT_PRODUCT_ID); withPrice(100.0) }
@@ -73,7 +73,7 @@ class GetCartSummaryUseCaseTest {
     }
 
     @Test
-    fun `Given 3 items in offer 2x1 when invoke then only discount 1 unit`() = runTest {
+    fun `given 3 items in offer 2x1 when invoke then only discount 1 unit`() = runTest {
         //Given
         val cart = cartItem {
             withProductId(DEFAULT_PRODUCT_ID)
@@ -106,7 +106,7 @@ class GetCartSummaryUseCaseTest {
     }
 
     @Test
-    fun `Given multiple products with different offers when invoke then sums all correctly`() =
+    fun `given multiple products with different offers when invoke then sums all correctly`() =
         runTest {
             //Given
             val now = clock.now()
@@ -145,7 +145,7 @@ class GetCartSummaryUseCaseTest {
         }
 
     @Test
-    fun `Given offer out of date when invoke then discount is zero`() =
+    fun `given offer out of date when invoke then discount is zero`() =
         runTest {
             //Given
             val now = clock.now()
@@ -177,7 +177,7 @@ class GetCartSummaryUseCaseTest {
         }
 
     @Test
-    fun `Given active offer when time advance then summary update automatically`() =
+    fun `given active offer when time advance then summary update automatically`() =
         runTest {
             //Given
             val now = clock.now()
