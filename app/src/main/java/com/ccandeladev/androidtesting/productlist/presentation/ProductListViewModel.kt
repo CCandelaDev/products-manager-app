@@ -8,31 +8,68 @@ import com.ccandeladev.androidtesting.productlist.domain.model.SortOption
 import com.ccandeladev.androidtesting.productlist.domain.repository.SettingsRepository
 import com.ccandeladev.androidtesting.productlist.domain.usecase.GetInventoryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ProductListViewModel @Inject constructor(
-    private val getInventoryUseCase: GetInventoryUseCase,
+    getInventoryUseCase: GetInventoryUseCase,
     private val settingsRepository: SettingsRepository
 ) :
     ViewModel(
     ) {
 
-    private val _uiState = MutableStateFlow<ProductListUiState>(value = ProductListUiState.Loading)
-    val uiState: StateFlow<ProductListUiState> = _uiState.asStateFlow()
+    //    private val _uiState = MutableStateFlow<ProductListUiState>(value = ProductListUiState.Loading)
+    //    val uiState: StateFlow<ProductListUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<ProductListUiState> = combine(
+        getInventoryUseCase(),
+        settingsRepository.selectCategory,
+        settingsRepository.sortOption
+    ) { inventory, category, sortOption ->
+        var filteredInventory = inventory
+
+        if (category != null) { // user select category
+            filteredInventory = filteredInventory.filter {
+                it.product.category == category
+            }
+        }
+
+        val sorted = when (sortOption) {
+            SortOption.PRICE_ASC -> filteredInventory.sortedBy { effectivePrice(item = it) }
+            SortOption.PRICE_DES -> filteredInventory.sortedByDescending { effectivePrice(item = it) }
+            SortOption.NONE -> filteredInventory
+            SortOption.DISCOUNT ->
+                filteredInventory.sortedWith(
+                    compareByDescending<ProductWithOffer> {
+                        effectiveDiscountPercent(item = it)
+                    }.thenBy { it.product.price }
+                )
+        }
+
+        val categories = inventory.map { it.product.category }.distinct().sorted()
+
+        ProductListUiState.Success(
+            inventory = sorted,
+            categories = categories,
+            selectedCategory = category,
+            sortOption = sortOption
+        ) as ProductListUiState
+
+
+    }.catch { e: Throwable ->
+        emit(ProductListUiState.Error(e.message.orEmpty()))
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ProductListUiState.Loading
+    )
 
     // SharedFlow  because is an ephemeral event
     private val _events = MutableSharedFlow<ProductListEvent>(extraBufferCapacity = 1)
@@ -45,59 +82,6 @@ class ProductListViewModel @Inject constructor(
 
     )
 
-    private var inventoryJob: Job? = null
-
-
-    // Begin loading the products
-    init {
-        loadProducts()
-    }
-
-    fun loadProducts() {
-        _uiState.value = ProductListUiState.Loading
-        inventoryJob?.cancel()
-        inventoryJob = combine(
-            getInventoryUseCase(),
-            settingsRepository.selectCategory,
-            settingsRepository.sortOption
-        ) { inventory, category, sortOption ->
-            var filteredInventory = inventory
-
-            if (category != null) { // user select category
-                filteredInventory = filteredInventory.filter {
-                    it.product.category == category
-                }
-            }
-
-            val sorted = when (sortOption) {
-                SortOption.PRICE_ASC -> filteredInventory.sortedBy { effectivePrice(item = it) }
-                SortOption.PRICE_DES -> filteredInventory.sortedByDescending { effectivePrice(item = it) }
-                SortOption.NONE -> filteredInventory
-                SortOption.DISCOUNT ->
-                //filteredInventory.sortedByDescending { effectiveDiscountPercent(item = it) }
-                    filteredInventory.sortedWith (
-                        compareByDescending<ProductWithOffer> {
-                          effectiveDiscountPercent(item = it)
-                        }.thenBy { it.product.price }
-                            )
-            }
-
-            val categories = inventory.map { it.product.category }.distinct().sorted()
-
-            ProductListUiState.Success(
-                inventory = sorted,
-                categories = categories,
-                selectedCategory = category,
-                sortOption = sortOption
-            )
-        }.onEach { state ->
-            _uiState.value = state
-
-        }.catch { e: Throwable ->
-            _uiState.value = ProductListUiState.Error(e.message.orEmpty())
-        }.launchIn(viewModelScope)
-
-    }
 
     fun setCategory(category: String?) {
         viewModelScope.launch {
