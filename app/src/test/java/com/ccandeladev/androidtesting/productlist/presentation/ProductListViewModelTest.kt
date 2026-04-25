@@ -8,7 +8,9 @@ import com.ccandeladev.androidtesting.core.fakes.FakeProductRepository
 import com.ccandeladev.androidtesting.core.fakes.FakeSettingsRepository
 import com.ccandeladev.androidtesting.core.fakes.FakeSystemClock
 import com.ccandeladev.androidtesting.core.maindispatchersrule.MainDispatcherRule
+import com.ccandeladev.androidtesting.core.stubs.FailingProductRepositoryStub
 import com.ccandeladev.androidtesting.productlist.domain.model.SortOption
+import com.ccandeladev.androidtesting.productlist.domain.repository.ProductRepository
 import com.ccandeladev.androidtesting.productlist.domain.usecase.GetInventoryUseCase
 import com.ccandeladev.androidtesting.productlist.domain.usecase.GetOfferForProduct
 import junit.framework.TestCase.assertEquals
@@ -24,7 +26,7 @@ class ProductListViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private fun createViewmodel(
-        fakeProduct: FakeProductRepository = FakeProductRepository(),
+        fakeProduct: ProductRepository = FakeProductRepository(),
         fakeSettings: FakeSettingsRepository = FakeSettingsRepository(),
         fakeOffer: FakeOfferRepository = FakeOfferRepository(),
         fakeClock: FakeSystemClock = FakeSystemClock()
@@ -123,5 +125,32 @@ class ProductListViewModelTest {
             }
 
         }
+
+    // Stub: Test that verifies the ViewModel emits an Error state when the repository throws an exception during product loading.
+    // This ensures proper error handling in the UI layer when data fetching fails.
+    @Test
+    fun `given repository error when loading products then emits error state`() =
+        runTest(mainDispatcherRule.scheduler) {
+
+            turbineScope {
+                val failingRepository =
+                    FailingProductRepositoryStub(exception = Exception("Proof test"))
+
+                val viewModel = createViewmodel(fakeProduct = failingRepository)
+                val state = viewModel.uiState.testIn(this)
+                val emittedState = state.awaitItem()
+
+                assertTrue(emittedState is ProductListUiState.Error)
+                assertTrue((emittedState as ProductListUiState.Error).message == "Proof test")
+                //Workaround
+                if (emittedState is ProductListUiState.Error) {
+                    assertEquals("Proof test", emittedState.message)
+                }
+
+                state.cancelAndIgnoreRemainingEvents()
+            }
+
+        }
+
 
 }
