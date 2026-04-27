@@ -102,13 +102,15 @@ fun CartScreen(
                 CartLoadingStateScreen(modifier = Modifier)
             }
 
-            is CartUiState.Error -> CartErrorStateScreen(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                state = state,
+            is CartUiState.Error -> {
+                CartErrorStateScreen(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    state = state,
 
-                ) { cartViewModel.loadCart() }
+                    ) { cartViewModel.refresh() }
+            }
 
             is CartUiState.Success -> CartSuccessStateScreen(
                 modifier = Modifier
@@ -142,7 +144,7 @@ fun CartScreen(
 fun CartErrorStateScreen(
     modifier: Modifier = Modifier,
     state: CartUiState.Error,
-    onRetrySelected: () -> Unit
+    onRefresh: () -> Unit
 ) {
     Column(
         modifier = modifier.padding(16.dp),
@@ -155,7 +157,7 @@ fun CartErrorStateScreen(
             color = MaterialTheme.colorScheme.error
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { onRetrySelected() }) {
+        Button(onClick = { onRefresh() }) {
             Text(stringResource(R.string.btn_retry))
         }
     }
@@ -306,56 +308,56 @@ fun CartSummaryCard(modifier: Modifier, summary: CartSummary, currencyFormatter:
                 )
             }
 
-                //If we have something with discount
-                if (summary.discountTotal > 0) {
-                    //Discounts
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            stringResource(R.string.txt_total_discount),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.error
-                        )
-
-                        Text(
-                            currencyFormatter.format(
-                                summary.discountTotal
-                            ),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.error
-                        )
-
-                    }
-
-                }
-                HorizontalDivider(
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f),
-                    thickness = 1.dp
-                )
-
-                //Final price
+            //If we have something with discount
+            if (summary.discountTotal > 0) {
+                //Discounts
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        stringResource(R.string.txt_total_price),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        fontWeight = FontWeight.Bold
+                        stringResource(R.string.txt_total_discount),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.error
                     )
 
                     Text(
                         currencyFormatter.format(
-                            summary.finalTotal
+                            summary.discountTotal
                         ),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.error
                     )
 
                 }
+
+            }
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f),
+                thickness = 1.dp
+            )
+
+            //Final price
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stringResource(R.string.txt_total_price),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Text(
+                    currencyFormatter.format(
+                        summary.finalTotal
+                    ),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+
+            }
 
         }
     }

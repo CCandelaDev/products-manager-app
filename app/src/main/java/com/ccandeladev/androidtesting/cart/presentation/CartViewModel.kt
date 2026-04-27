@@ -6,18 +6,16 @@ import com.ccandeladev.androidtesting.cart.domain.repository.CartRepository
 import com.ccandeladev.androidtesting.cart.domain.usecase.GetCartItemsWithOffersUseCase
 import com.ccandeladev.androidtesting.cart.domain.usecase.GetCartSummaryUseCase
 import com.ccandeladev.androidtesting.cart.domain.usecase.UpdateCartItemUseCase
-import com.ccandeladev.androidtesting.productlist.domain.repository.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,51 +23,39 @@ import javax.inject.Inject
 @HiltViewModel
 class CartViewModel @Inject constructor(
     private val cartRepository: CartRepository,
-    private val productRepository: ProductRepository,
-    private val getCartSummaryUseCase: GetCartSummaryUseCase,
+    getCartSummaryUseCase: GetCartSummaryUseCase,
     private val updateCartItemUseCase: UpdateCartItemUseCase,
-    private val getCartItemsWithOffersUseCase: GetCartItemsWithOffersUseCase
+    getCartItemsWithOffersUseCase: GetCartItemsWithOffersUseCase
 ) : ViewModel() {
 
+    private val refreshTrigger = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
     // UI state: represents what the screen should display (Loading, Success, Error)
-    private val _uiState = MutableStateFlow<CartUiState>(CartUiState.Loading)
-    val uiState: StateFlow<CartUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<CartUiState> = combine(
+        refreshTrigger.onStart { emit(Unit) },
+        getCartItemsWithOffersUseCase(),
+        getCartSummaryUseCase()
+
+    ) { _, cartItemWithOffer, summary ->
+        CartUiState.Success(
+            summary = summary,
+            cartItems = cartItemWithOffer,
+            isLoading = false
+        ) as CartUiState
+    }.catch { e ->
+        _events.emit(CartEvent.ShowMessage(e.message.orEmpty()))
+        emit(CartUiState.Error(e.message.orEmpty()))
+
+    }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = CartUiState.Loading
+        )
 
     // One-time events: for showing toasts, navigation, etc. (not state-based)
     private val _events = MutableSharedFlow<CartEvent>(extraBufferCapacity = 1)
     val events: SharedFlow<CartEvent> = _events
-
-    var cartJob: Job? = null// Tracks active cart operation. Null = no operation running.
-    // Used to cancel previous operations before starting new ones.
-
-    init {
-        // Load cart data as soon as ViewModel is created
-        loadCart()
-    }
-
-
-
-     fun loadCart() {
-        _uiState.value = CartUiState.Loading // Show loading indicator while fetching data
-        cartJob?.cancel()  // Cancel any existing cart job to prevent multiple concurrent streams
-
-
-        // Start new job to observe cart changes
-        cartJob = combine(
-            getCartItemsWithOffersUseCase(),
-            getCartSummaryUseCase()
-        ) { cartItemWithOffer, summary ->
-            _uiState.value = CartUiState.Success(
-                summary = summary,
-                cartItems = cartItemWithOffer,
-                isLoading = false
-            )
-        }.catch { e ->
-            _events.emit(CartEvent.ShowMessage(e.message.orEmpty()))
-        }
-            .launchIn(viewModelScope)
-    }
-
 
 
     /**
@@ -125,6 +111,10 @@ class CartViewModel @Inject constructor(
             removeFromCart(productId)
         }
 
+    }
+
+    fun refresh(){
+        refreshTrigger.tryEmit(Unit) //it does nothing, relaunch the success
     }
 
 
