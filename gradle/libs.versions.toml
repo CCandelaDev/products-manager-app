@@ -61,6 +61,7 @@ hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-com
 #Deprecado---funcionalidad integrada en hilt-navigation-compose
 hilt-lifecycle-viewmodel-compose = { group = "androidx.hilt", name = "hilt-lifecycle-viewmodel-compose", version.ref = "hiltNavigationCompose" }
 
+
 #DataStore
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 

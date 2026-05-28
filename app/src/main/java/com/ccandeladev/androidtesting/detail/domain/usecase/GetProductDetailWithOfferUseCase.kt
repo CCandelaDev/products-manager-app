@@ -1,6 +1,7 @@
 package com.ccandeladev.androidtesting.detail.domain.usecase
 
 import com.ccandeladev.androidtesting.core.domain.util.Clock
+import com.ccandeladev.androidtesting.core.presentation.ex.activeAt
 import com.ccandeladev.androidtesting.productlist.domain.model.ProductWithOffer
 import com.ccandeladev.androidtesting.productlist.domain.repository.OfferRepository
 import com.ccandeladev.androidtesting.productlist.domain.repository.ProductRepository
@@ -23,9 +24,7 @@ class GetProductDetailWithOfferUseCase @Inject constructor(
             offerRepository.getActiveOffers()
         ) { product, offers ->
             val now = clock.now()
-            val activeOffers = offers.filter {
-                it.startTime <= now && it.endTime >= now
-            }
+            val activeOffers = offers.activeAt(now = now)
             // Typically used with ?.let { } for null safety
             product?.let {
                 val finalOffer = getOfferForProduct(it, activeOffers)

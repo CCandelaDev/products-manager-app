@@ -11,70 +11,65 @@ import com.ccandeladev.androidtesting.core.domain.model.AppError.UnknownError
 import com.ccandeladev.androidtesting.core.domain.model.AppError.Validation
 import com.ccandeladev.androidtesting.detail.domain.usecase.GetProductDetailWithOfferUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
+@OptIn(ExperimentalCoroutinesApi::class)
 class ProductDetailViewModel @Inject constructor(
     private val getProductDetailWithOfferUseCase: GetProductDetailWithOfferUseCase,
-    private val addToCartUseCase: AddToCartUseCase
+    private val addToCartUseCase: AddToCartUseCase,
 ) :
     ViewModel() {
+    private val productIdState: MutableStateFlow<String?> = MutableStateFlow(null) //Initial state
 
-    //For the states
-    private val _uiState = MutableStateFlow(ProductDetailUiState())
-    val uiState: StateFlow<ProductDetailUiState> = _uiState.asStateFlow()
+
+    val uiState: StateFlow<ProductDetailUiState> = productIdState
+        .filterNotNull() //
+        .flatMapLatest { productId ->
+            flow {
+                try {
+                    getProductDetailWithOfferUseCase(productId = productId).collect { product ->
+                        emit(ProductDetailUiState.Success(product))
+                    }
+                } catch (e: Throwable) {
+                    emit(ProductDetailUiState.Error(e.message ?: "Unknown error"))
+                }
+            }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = ProductDetailUiState.Loading
+        )
+
 
     //For the events
     private val _events = MutableSharedFlow<ProductDetailEvent>(extraBufferCapacity = 1)
     val events: SharedFlow<ProductDetailEvent> = _events
 
-    // Keeps a reference to the current loading job so we can cancel it
-    // if loadProduct is called again before the previous one finishes
-    private var productJob: Job? = null // Job
-
-    //Load product
-    fun loadProduct(productId: String) {
-
-        _uiState.value = _uiState.value.copy(isLoading = true)
-
-        // Keeps a reference to the current loading job so we can cancel it
-        // if loadProduct is called again before the previous one finishes
-        productJob?.cancel()
-
-        productJob = getProductDetailWithOfferUseCase(productId = productId)
-            .onEach { product ->
-                // Update the UI state with the new product and hide the loading indicator
-                _uiState.value = _uiState.value.copy(item = product, isLoading = false)
-            }
-            .catch { e: Throwable ->
-                // Hide loading and emit a one-time error event to the UI
-                _uiState.value = _uiState.value.copy(isLoading = false)
-                if (e is AppError) {
-                    handleError(e)
-                } else {
-                    handleError(UnknownError(e.message))
-                }
-            }
-            // Launch the flow in viewModelScope so it is automatically
-            // canceled when the ViewModel is destroyed
-            .launchIn(viewModelScope)
+    //Setter for productId
+    fun setProductId(productId: String) {
+        productIdState.value = productId
     }
+
 
     // For persistence
     fun addToCart() {
-        val product = _uiState.value.item?.product?.id ?: return
-        viewModelScope.launch {
+        val snapShot = uiState.value
+        val product = (snapShot as? ProductDetailUiState.Success)?.item?.product?.id ?: return
 
+        viewModelScope.launch {
             try {
                 addToCartUseCase(productId = product)
                 _events.emit(ProductDetailEvent.SUCCESS_ADD_TO_CART)

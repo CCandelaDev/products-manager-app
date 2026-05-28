@@ -1,7 +1,6 @@
 package com.ccandeladev.androidtesting.detail.presentation
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -40,7 +40,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.ccandeladev.androidtesting.core.presentation.components.ShopTopAppbar
 import com.ccandeladev.androidtesting.detail.presentation.components.AddToCartButton
-import com.ccandeladev.androidtesting.productlist.domain.model.Product
 import com.ccandeladev.androidtesting.productlist.domain.model.ProductOffer
 
 @Composable
@@ -56,7 +55,7 @@ fun ProductDetailScreen(
 
     // to get productId
     LaunchedEffect(productId) {
-        productDetailViewModel.loadProduct(productId)
+        productDetailViewModel.setProductId(productId = productId)
     }
 
     LaunchedEffect(Unit) {
@@ -82,16 +81,21 @@ fun ProductDetailScreen(
         }
     }
 
+
+    val screenTitle = (uiState as? ProductDetailUiState.Success)?.item?.product?.name.orEmpty()
+
+    val successState = uiState as? ProductDetailUiState.Success
+
     Scaffold(
         topBar = {
             ShopTopAppbar(
-                title = uiState.item?.product?.name.orEmpty(),
+                title = screenTitle,
                 onBackSelected = { onBack() })
         },
         bottomBar = {
             AddToCartButton(
-                product = uiState.item?.product,
-                isLoading = uiState.isLoading
+                product = successState?.item?.product,
+                isLoading = uiState is ProductDetailUiState.Loading
             ) { productDetailViewModel.addToCart() }
 
         },
@@ -104,188 +108,194 @@ fun ProductDetailScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            if (uiState.isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+            when (val state = uiState) {
+                is ProductDetailUiState.Loading -> {
+                    CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
                 }
-            } else {
-                uiState.item?.let {
-                    val product: Product = it.product
-                    val offer = it.offer
-                    val discountedPrice = when (offer) {
-                        is ProductOffer.BuyXPayY -> null
-                        is ProductOffer.Percent -> offer.discountedPrice
-                        null -> null
-                    }
 
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 16.dp),
-                            shape = RoundedCornerShape(16.dp)
+                is ProductDetailUiState.Error -> {
+                    Text(
+                        text = state.message,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                is ProductDetailUiState.Success -> {
+                    state.item?.let { productWithOffer ->
+                        val product = productWithOffer.product
+                        val offer = productWithOffer.offer
+                        val discountedPrice = when (offer) {
+                            is ProductOffer.BuyXPayY -> null
+                            is ProductOffer.Percent -> offer.discountedPrice
+                            null -> null
+                        }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            Column(
-                                modifier = Modifier.padding(24.dp),
-                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 16.dp),
+                                shape = RoundedCornerShape(16.dp)
                             ) {
-                                AsyncImage(
-                                    model = product.imageUrl,
-                                    contentDescription = product.name,
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier.clip(RoundedCornerShape(16.dp)),
-                                    placeholder = rememberVectorPainter(Icons.Default.Image),
-                                    error = rememberVectorPainter(Icons.Default.BrokenImage)
-                                )
-
-                                Text(
-                                    product.name,
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-
-                                Surface(
-                                    shape = RoundedCornerShape(8.dp),
-                                    color = MaterialTheme.colorScheme.secondaryContainer
+                                Column(
+                                    modifier = Modifier.padding(24.dp),
+                                    verticalArrangement = Arrangement.spacedBy(16.dp)
                                 ) {
-                                    Column(
-                                        modifier = Modifier.padding(12.dp),
-                                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        Text(
-                                            product.category,
-                                            modifier = Modifier.padding(
-                                                horizontal = 12.dp,
-                                                vertical = 6.dp
-                                            ),
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                                        )
-                                        if (product.description.isNotBlank()) {
-                                            Text(text = product.description)
-                                        }
-                                        HorizontalDivider()
+                                    AsyncImage(
+                                        model = product.imageUrl,
+                                        contentDescription = product.name,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.clip(RoundedCornerShape(16.dp)),
+                                        placeholder = rememberVectorPainter(Icons.Default.Image),
+                                        error = rememberVectorPainter(Icons.Default.BrokenImage)
+                                    )
 
-                                        if (discountedPrice != null) {
-                                            Row(
-                                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Text(//crossed out
-                                                    product.price.toString(),
-                                                    style = MaterialTheme.typography.bodyLarge,
-                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                    textDecoration = TextDecoration.LineThrough
-                                                )
+                                    Text(
+                                        product.name,
+                                        style = MaterialTheme.typography.headlineMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+
+                                    Surface(
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = MaterialTheme.colorScheme.secondaryContainer
+                                    ) {
+                                        Column(
+                                            modifier = Modifier.padding(12.dp),
+                                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            Text(
+                                                product.category,
+                                                modifier = Modifier.padding(
+                                                    horizontal = 12.dp,
+                                                    vertical = 6.dp
+                                                ),
+                                                style = MaterialTheme.typography.labelMedium,
+                                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                                            )
+                                            if (product.description.isNotBlank()) {
+                                                Text(text = product.description)
+                                            }
+                                            HorizontalDivider()
+
+                                            if (discountedPrice != null) {
+                                                Row(
+                                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Text(//crossed out
+                                                        product.price.toString(),
+                                                        style = MaterialTheme.typography.bodyLarge,
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                        textDecoration = TextDecoration.LineThrough
+                                                    )
+                                                    Text(
+                                                        text = "$discountedPrice €",
+                                                        style = MaterialTheme.typography.displaySmall,
+                                                        color = MaterialTheme.colorScheme.primary,
+                                                        fontWeight = FontWeight.Bold
+                                                    )
+                                                }
+
+                                                //Discount percent
+                                                Surface(
+                                                    shape = RoundedCornerShape(8.dp),
+                                                    color = MaterialTheme.colorScheme.errorContainer
+                                                ) {
+                                                    Text(
+                                                        "${(offer as ProductOffer.Percent).percent.toInt()}% OFF",
+                                                        modifier = Modifier.padding(
+                                                            horizontal = 12.dp,
+                                                            vertical = 6.dp
+                                                        ),
+                                                        style = MaterialTheme.typography.titleMedium,
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = MaterialTheme.colorScheme.onErrorContainer
+                                                    )
+                                                }
+
+                                            } else {
                                                 Text(
-                                                    text = "$discountedPrice €",
+                                                    product.price.toString(),
                                                     style = MaterialTheme.typography.displaySmall,
-                                                    color = MaterialTheme.colorScheme.primary,
                                                     fontWeight = FontWeight.Bold
                                                 )
                                             }
 
-                                            //Discount percent
-                                            Surface(
-                                                shape = RoundedCornerShape(8.dp),
-                                                color = MaterialTheme.colorScheme.errorContainer
-                                            ) {
-                                                Text(
-                                                    "${(offer as ProductOffer.Percent).percent.toInt()}% OFF",
-                                                    modifier = Modifier.padding(
-                                                        horizontal = 12.dp,
-                                                        vertical = 6.dp
-                                                    ),
-                                                    style = MaterialTheme.typography.titleMedium,
-                                                    fontWeight = FontWeight.Bold,
-                                                    color = MaterialTheme.colorScheme.onErrorContainer
-                                                )
+                                            if (offer is ProductOffer.BuyXPayY) {
+                                                Surface(
+                                                    shape = RoundedCornerShape(8.dp),
+                                                    color = MaterialTheme.colorScheme.errorContainer
+                                                ) {
+                                                    Text(
+                                                        "OFFER 3x2 ${offer.label} OFF",
+                                                        modifier = Modifier.padding(
+                                                            horizontal = 12.dp,
+                                                            vertical = 6.dp
+                                                        ),
+                                                        style = MaterialTheme.typography.titleMedium,
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = MaterialTheme.colorScheme.onErrorContainer
+                                                    )
+                                                }
                                             }
 
-                                        } else {
-                                            Text(
-                                                product.price.toString(),
-                                                style = MaterialTheme.typography.displaySmall,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                        }
-
-                                        if (offer is ProductOffer.BuyXPayY) {
-                                            Surface(
-                                                shape = RoundedCornerShape(8.dp),
-                                                color = MaterialTheme.colorScheme.errorContainer
-                                            ) {
-                                                Text(
-                                                    "OFFER 3x2 ${offer.label} OFF",
-                                                    modifier = Modifier.padding(
-                                                        horizontal = 12.dp,
-                                                        vertical = 6.dp
-                                                    ),
-                                                    style = MaterialTheme.typography.titleMedium,
-                                                    fontWeight = FontWeight.Bold,
-                                                    color = MaterialTheme.colorScheme.onErrorContainer
-                                                )
+                                            HorizontalDivider()
+                                            val hasStock = product.stock > 0
+                                            val containerColor = if (hasStock) {
+                                                MaterialTheme.colorScheme.primaryContainer
+                                            } else {
+                                                MaterialTheme.colorScheme.errorContainer
                                             }
-                                        }
-
-                                        HorizontalDivider()
-                                        val hasStock = product.stock > 0
-                                        val containerColor = if (hasStock) {
-                                            MaterialTheme.colorScheme.primaryContainer
-                                        } else {
-                                            MaterialTheme.colorScheme.errorContainer
-                                        }
-                                        val contentColor = if (hasStock) {
-                                            MaterialTheme.colorScheme.onPrimaryContainer
-                                        } else {
-                                            MaterialTheme.colorScheme.onErrorContainer
-                                        }
-                                        // Stock available
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-
-                                            Text(
-                                                text = "Stock available",
-                                                style = MaterialTheme.typography.bodyLarge,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                                            )
-                                            Surface(
-                                                shape = RoundedCornerShape(16.dp),
-                                                color = containerColor
+                                            val contentColor = if (hasStock) {
+                                                MaterialTheme.colorScheme.onPrimaryContainer
+                                            } else {
+                                                MaterialTheme.colorScheme.onErrorContainer
+                                            }
+                                            // Stock available
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically
                                             ) {
+
                                                 Text(
-                                                    if (hasStock) "${product.stock} units" else "Out of stock",
-                                                    modifier = Modifier.padding(
-                                                        horizontal = 12.dp, vertical = 6.dp,
-                                                    ),
+                                                    text = "Stock available",
                                                     style = MaterialTheme.typography.bodyLarge,
-                                                    color = contentColor
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                                 )
+                                                Surface(
+                                                    shape = RoundedCornerShape(16.dp),
+                                                    color = containerColor
+                                                ) {
+                                                    Text(
+                                                        if (hasStock) "${product.stock} units" else "Out of stock",
+                                                        modifier = Modifier.padding(
+                                                            horizontal = 12.dp, vertical = 6.dp,
+                                                        ),
+                                                        style = MaterialTheme.typography.bodyLarge,
+                                                        color = contentColor
+                                                    )
+                                                }
+
                                             }
 
                                         }
-
                                     }
                                 }
                             }
-
 
                         }
                     }
                 }
             }
         }
-
-
     }
-
 }
 
 
