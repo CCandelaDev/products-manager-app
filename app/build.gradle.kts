@@ -101,6 +101,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)
+    testImplementation(libs.mockwebserver)
 
     //Android Test
     androidTestImplementation(libs.turbine)
